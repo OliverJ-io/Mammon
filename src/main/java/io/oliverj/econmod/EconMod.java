@@ -1,9 +1,8 @@
 package io.oliverj.econmod;
 
-import com.mojang.authlib.minecraft.client.MinecraftClient;
 import io.netty.buffer.Unpooled;
 import io.oliverj.econmod.events.WalletUpdateCallback;
-import io.oliverj.econmod.items.ItemRegister;
+import io.oliverj.econmod.registry.ItemRegistry;
 import io.oliverj.econmod.items.components.EconComponents;
 import io.oliverj.econmod.registry.ScreenHandlerRegistry;
 import net.fabricmc.api.ModInitializer;
@@ -16,8 +15,6 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.PlayerManager;
-import net.minecraft.server.dedicated.DedicatedPlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
@@ -25,9 +22,7 @@ import net.minecraft.util.Formatting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.text.html.Option;
 import java.util.HashMap;
-import java.util.Optional;
 import java.util.UUID;
 
 public class EconMod implements ModInitializer {
@@ -48,7 +43,7 @@ public class EconMod implements ModInitializer {
 
         EconComponents.initialize();
 
-        ItemRegister.init();
+        ItemRegistry.init();
 
         ScreenHandlerRegistry.registerScreenHandlers();
 

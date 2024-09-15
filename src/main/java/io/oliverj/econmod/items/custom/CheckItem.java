@@ -1,12 +1,9 @@
 package io.oliverj.econmod.items.custom;
 
 import io.oliverj.econmod.EconMod;
-import io.oliverj.econmod.Payloads;
-import io.oliverj.econmod.items.ItemRegister;
+import io.oliverj.econmod.registry.ItemRegistry;
 import io.oliverj.econmod.items.components.EconComponents;
 import io.oliverj.econmod.screen.CheckScreenHandler;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.component.ComponentMap;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -25,7 +22,7 @@ public class CheckItem extends Item {
     }
 
     public static ItemStack createItem(double value, ServerPlayerEntity sender, ServerPlayerEntity receiver) {
-        ItemStack stack = new ItemStack(ItemRegister.CHECK_ITEM.asItem());
+        ItemStack stack = new ItemStack(ItemRegistry.CHECK_ITEM.asItem());
         stack.set(EconComponents.VALUE_COMPONENT_TYPE, value);
         if (sender != null) stack.set(EconComponents.SENDER_COMPONENT_TYPE, sender.getUuidAsString());
         if (receiver != null) stack.set(EconComponents.RECEIVER_COMPONENT_TYPE, receiver.getUuidAsString());

@@ -1,6 +1,7 @@
 package io.oliverj.econmod.datagen;
 
-import io.oliverj.econmod.items.ItemRegister;
+import io.oliverj.econmod.block.custom.CardReaderBlock;
+import io.oliverj.econmod.registry.ItemRegistry;
 import io.oliverj.econmod.items.custom.MonetaryNoteItem;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
@@ -17,6 +18,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+class BlockModelGenerator extends FabricModelProvider {
+    BlockModelGenerator(FabricDataOutput generator) { super(generator); }
+
+    @Override
+    public void generateBlockStateModels(BlockStateModelGenerator blockStateModelGenerator) {
+        blockStateModelGenerator.registerSimpleCubeAll(BlockRegistry.CARD_READER);
+    }
+
+    @Override
+    public void generateItemModels(ItemModelGenerator itemModelGenerator) {}
+}
+
 class MonetaryNoteModelGenerator extends FabricModelProvider {
     MonetaryNoteModelGenerator(FabricDataOutput generator) {
         super(generator);
@@ -29,16 +42,16 @@ class MonetaryNoteModelGenerator extends FabricModelProvider {
 
     @Override
     public void generateItemModels(ItemModelGenerator itemModelGenerator) {
-        itemModelGenerator.register(ItemRegister.ONE_MN,          Models.GENERATED);
-        itemModelGenerator.register(ItemRegister.FIVE_MN,         Models.GENERATED);
-        itemModelGenerator.register(ItemRegister.TEN_MN,          Models.GENERATED);
-        itemModelGenerator.register(ItemRegister.TWENTY_MN,       Models.GENERATED);
-        itemModelGenerator.register(ItemRegister.FIFTY_MN,        Models.GENERATED);
-        itemModelGenerator.register(ItemRegister.ONE_HUNDRED_MN,  Models.GENERATED);
-        itemModelGenerator.register(ItemRegister.TWO_HUNDRED_MN,  Models.GENERATED);
-        itemModelGenerator.register(ItemRegister.FIVE_HUNDRED_MN, Models.GENERATED);
-        itemModelGenerator.register(ItemRegister.ONE_THOUSAND_MN, Models.GENERATED);
-        itemModelGenerator.register(ItemRegister.CHECK_ITEM,      Models.GENERATED);
+        itemModelGenerator.register(ItemRegistry.ONE_MN,          Models.GENERATED);
+        itemModelGenerator.register(ItemRegistry.FIVE_MN,         Models.GENERATED);
+        itemModelGenerator.register(ItemRegistry.TEN_MN,          Models.GENERATED);
+        itemModelGenerator.register(ItemRegistry.TWENTY_MN,       Models.GENERATED);
+        itemModelGenerator.register(ItemRegistry.FIFTY_MN,        Models.GENERATED);
+        itemModelGenerator.register(ItemRegistry.ONE_HUNDRED_MN,  Models.GENERATED);
+        itemModelGenerator.register(ItemRegistry.TWO_HUNDRED_MN,  Models.GENERATED);
+        itemModelGenerator.register(ItemRegistry.FIVE_HUNDRED_MN, Models.GENERATED);
+        itemModelGenerator.register(ItemRegistry.ONE_THOUSAND_MN, Models.GENERATED);
+        itemModelGenerator.register(ItemRegistry.CHECK_ITEM,      Models.GENERATED);
     }
 }
 
@@ -50,15 +63,15 @@ class EnglishTranslationProvider extends FabricLanguageProvider {
     @Override
     public void generateTranslations(RegistryWrapper.WrapperLookup registryLookup, TranslationBuilder translationBuilder) {
         List<Item> items = new ArrayList<>();
-        items.add(ItemRegister.ONE_MN);
-        items.add(ItemRegister.FIVE_MN);
-        items.add(ItemRegister.TEN_MN);
-        items.add(ItemRegister.TWENTY_MN);
-        items.add(ItemRegister.FIFTY_MN);
-        items.add(ItemRegister.ONE_HUNDRED_MN);
-        items.add(ItemRegister.TWO_HUNDRED_MN);
-        items.add(ItemRegister.FIVE_HUNDRED_MN);
-        items.add(ItemRegister.ONE_THOUSAND_MN);
+        items.add(ItemRegistry.ONE_MN);
+        items.add(ItemRegistry.FIVE_MN);
+        items.add(ItemRegistry.TEN_MN);
+        items.add(ItemRegistry.TWENTY_MN);
+        items.add(ItemRegistry.FIFTY_MN);
+        items.add(ItemRegistry.ONE_HUNDRED_MN);
+        items.add(ItemRegistry.TWO_HUNDRED_MN);
+        items.add(ItemRegistry.FIVE_HUNDRED_MN);
+        items.add(ItemRegistry.ONE_THOUSAND_MN);
 
         for (Item item : items) {
             MonetaryNoteItem note = (MonetaryNoteItem) item;
@@ -66,7 +79,7 @@ class EnglishTranslationProvider extends FabricLanguageProvider {
         }
 
         translationBuilder.add("wallet.balance.tooltip", "%d ¤");
-        translationBuilder.add(ItemRegister.CHECK_ITEM, "Check");
+        translationBuilder.add(ItemRegistry.CHECK_ITEM, "Check");
         translationBuilder.add("container.econmod.check", "Blank Check");
         translationBuilder.add("container.econmod.check.sign", "Sign");
     }
@@ -80,5 +93,6 @@ public class EconModDataGeneration implements DataGeneratorEntrypoint {
 
         pack.addProvider(MonetaryNoteModelGenerator::new);
         pack.addProvider(EnglishTranslationProvider::new);
+        pack.addProvider(BlockModelGenerator::new);
     }
 }

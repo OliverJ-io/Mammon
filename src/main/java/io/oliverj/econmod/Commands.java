@@ -44,7 +44,7 @@ public class Commands {
                 )
                 .then(literal("rm")
                         .then(argument("amount", DoubleArgumentType.doubleArg())
-                                .executes(ctx -> removeEconBalance(ctx.getSource().getPlayer(), DoubleArgumentType.getDouble(ctx, "double"))
+                                .executes(ctx -> removeEconBalance(ctx.getSource().getPlayer(), DoubleArgumentType.getDouble(ctx, "amount"))
                                 )
                         )
                         .then(argument("players", EntityArgumentType.players())
