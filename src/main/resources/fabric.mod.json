@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "id": "econmod",
+  "version": "0.1",
+  "name": "EconMod",
+  "description": "",
+  "authors": ["Oliver Johnson"],
+  "contact": {
+    "repo": "https://github.com/olliejohnson/EconMod"
+  },
+  "license": "All-Rights-Reserved",
+  "icon": "assets/EconMod/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "io.oliverj.econmod.EconModClient"
+    ],
+    "main": [
+      "io.oliverj.econmod.EconMod"
+    ],
+    "fabric-datagen": [
+      "io.oliverj.econmod.datagen.EconModDataGeneration"
+    ]
+  },
+  "mixins": [
+    "econmod.mixins.json",
+    {
+      "config": "econmod.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.5",
+    "fabric": "*",
+    "minecraft": "1.21"
+  },
+  "accessWidener": "econ.accesswidener"
+}
