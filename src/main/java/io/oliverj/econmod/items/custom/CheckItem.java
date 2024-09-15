@@ -24,14 +24,23 @@ public class CheckItem extends Item {
         super(new Item.Settings().maxCount(1).component(EconComponents.VALUE_COMPONENT_TYPE, 0.0));
     }
 
-    public static ItemStack createItem(double value) {
+    public static ItemStack createItem(double value, ServerPlayerEntity sender, ServerPlayerEntity receiver) {
         ItemStack stack = new ItemStack(ItemRegister.CHECK_ITEM.asItem());
-        stack.applyComponentsFrom(ComponentMap.builder().add(EconComponents.VALUE_COMPONENT_TYPE, value).build());
+        stack.set(EconComponents.VALUE_COMPONENT_TYPE, value);
+        if (sender != null) stack.set(EconComponents.SENDER_COMPONENT_TYPE, sender.getUuidAsString());
+        if (receiver != null) stack.set(EconComponents.RECEIVER_COMPONENT_TYPE, receiver.getUuidAsString());
         return stack;
     }
 
     @Override
     public Text getName(ItemStack stack) {
+        if (stack.get(EconComponents.RECEIVER_COMPONENT_TYPE) == null) {
+            if (stack.get(EconComponents.VALUE_COMPONENT_TYPE) == 0.0) {
+                return Text.literal("Blank Voucher").styled(style -> style.withColor(Formatting.LIGHT_PURPLE));
+            }
+
+            return Text.literal(stack.get(EconComponents.VALUE_COMPONENT_TYPE) + " ¤").styled(style -> style.withColor(Formatting.GOLD)).append(Text.literal(" - Voucher").styled(style -> style.withColor(Formatting.LIGHT_PURPLE)));
+        }
         if (stack.get(EconComponents.VALUE_COMPONENT_TYPE) == 0.0) {
             return Text.literal("Blank Check").styled(style -> style.withColor(Formatting.LIGHT_PURPLE));
         }
@@ -44,12 +53,18 @@ public class CheckItem extends Item {
 
         if (world.isClient()) return TypedActionResult.pass(user.getStackInHand(hand));
 
+        if (user.getStackInHand(hand).get(EconComponents.RECEIVER_COMPONENT_TYPE) != null) {
+            if (user.getStackInHand(hand).get(EconComponents.RECEIVER_COMPONENT_TYPE) != user.getUuidAsString()) {
+                return TypedActionResult.fail(user.getStackInHand(hand));
+            }
+        }
+
         if (user.getStackInHand(hand).get(EconComponents.VALUE_COMPONENT_TYPE) == 0.0) {
             user.openHandledScreen(createScreenHandlerFactory());
             return TypedActionResult.consume(user.getStackInHand(hand));
         }
 
-        EconMod.addPlayerBalance(user, user.getStackInHand(hand).get(EconComponents.VALUE_COMPONENT_TYPE));
+        EconMod.addPlayerBalance(user, user.getStackInHand(hand).get(EconComponents.VALUE_COMPONENT_TYPE), user.getStackInHand(hand).get(EconComponents.SENDER_COMPONENT_TYPE));
         user.getInventory().removeStack(user.getInventory().selectedSlot, 1);
 
         return TypedActionResult.success(user.getStackInHand(hand));

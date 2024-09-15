@@ -1,5 +1,6 @@
 package io.oliverj.econmod;
 
+import com.mojang.authlib.minecraft.client.MinecraftClient;
 import io.netty.buffer.Unpooled;
 import io.oliverj.econmod.events.WalletUpdateCallback;
 import io.oliverj.econmod.items.ItemRegister;
@@ -14,6 +15,9 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.PlayerManager;
+import net.minecraft.server.dedicated.DedicatedPlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
@@ -21,12 +25,16 @@ import net.minecraft.util.Formatting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.text.html.Option;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.UUID;
 
 public class EconMod implements ModInitializer {
     public static final String MOD_ID = "econmod";
     public static final String MOD_VERSION = "1.21-0.0.1";
+
+    public static MinecraftServer MC_SERVER;
     public static final int VERSION_ID = 0;
     private static HashMap<UUID, Wallet> playerWallets = new HashMap<>();
 
@@ -79,6 +87,7 @@ public class EconMod implements ModInitializer {
             Persistance state = Persistance.getServerState(server);
 
             playerWallets = state.playerWallets;
+            MC_SERVER = server;
         });
 
         ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
@@ -101,6 +110,17 @@ public class EconMod implements ModInitializer {
 
     public static void setPlayerBalance(PlayerEntity player, double amount) {
         playerWallets.put(player.getUuid(), new Wallet(amount));
+        ActionResult result = WalletUpdateCallback.EVENT.invoker().interact(player, playerWallets.get(player.getUuid()));
+    }
+
+    public static void addPlayerBalance(PlayerEntity player, double amount, String uuid) {
+        if (uuid != null) {
+            addPlayerBalance(player.getServer().getPlayerManager().getPlayer(UUID.fromString(uuid)), -amount);
+            addPlayerBalance(player, amount);
+            ActionResult result = WalletUpdateCallback.EVENT.invoker().interact(player, playerWallets.get(player.getUuid()));
+            return;
+        }
+        setPlayerBalance(player, getPlayerBalance(player) + amount);
         ActionResult result = WalletUpdateCallback.EVENT.invoker().interact(player, playerWallets.get(player.getUuid()));
     }
 
