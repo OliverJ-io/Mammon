@@ -1,6 +1,7 @@
 {
   "container.econmod.check": "Blank Check",
   "container.econmod.check.sign": "Sign",
+  "item.econmod.card": "%s - Card",
   "item.econmod.check": "Check",
   "item.econmod.fifty_bill": "50 ¤",
   "item.econmod.five_bill": "5 ¤",

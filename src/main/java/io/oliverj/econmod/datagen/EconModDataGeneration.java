@@ -1,8 +1,7 @@
 package io.oliverj.econmod.datagen;
 
-import io.oliverj.econmod.block.custom.CardReaderBlock;
-import io.oliverj.econmod.registry.ItemRegistry;
 import io.oliverj.econmod.items.custom.MonetaryNoteItem;
+import io.oliverj.econmod.registry.ItemRegistry;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
@@ -22,12 +21,11 @@ class BlockModelGenerator extends FabricModelProvider {
     BlockModelGenerator(FabricDataOutput generator) { super(generator); }
 
     @Override
-    public void generateBlockStateModels(BlockStateModelGenerator blockStateModelGenerator) {
-        blockStateModelGenerator.registerSimpleCubeAll(BlockRegistry.CARD_READER);
-    }
+    public void generateBlockStateModels(BlockStateModelGenerator blockStateModelGenerator) {}
 
     @Override
-    public void generateItemModels(ItemModelGenerator itemModelGenerator) {}
+    public void generateItemModels(ItemModelGenerator itemModelGenerator) {
+    }
 }
 
 class MonetaryNoteModelGenerator extends FabricModelProvider {
@@ -52,6 +50,7 @@ class MonetaryNoteModelGenerator extends FabricModelProvider {
         itemModelGenerator.register(ItemRegistry.FIVE_HUNDRED_MN, Models.GENERATED);
         itemModelGenerator.register(ItemRegistry.ONE_THOUSAND_MN, Models.GENERATED);
         itemModelGenerator.register(ItemRegistry.CHECK_ITEM,      Models.GENERATED);
+        itemModelGenerator.register(ItemRegistry.CARD_ITEM, Models.GENERATED);
     }
 }
 
@@ -82,6 +81,7 @@ class EnglishTranslationProvider extends FabricLanguageProvider {
         translationBuilder.add(ItemRegistry.CHECK_ITEM, "Check");
         translationBuilder.add("container.econmod.check", "Blank Check");
         translationBuilder.add("container.econmod.check.sign", "Sign");
+        translationBuilder.add("item.econmod.card", "%s - Card");
     }
 }
 
@@ -93,6 +93,5 @@ public class EconModDataGeneration implements DataGeneratorEntrypoint {
 
         pack.addProvider(MonetaryNoteModelGenerator::new);
         pack.addProvider(EnglishTranslationProvider::new);
-        pack.addProvider(BlockModelGenerator::new);
     }
 }

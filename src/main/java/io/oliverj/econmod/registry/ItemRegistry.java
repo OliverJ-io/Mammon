@@ -4,9 +4,7 @@ import io.oliverj.econmod.EconMod;
 import io.oliverj.econmod.items.custom.CardItem;
 import io.oliverj.econmod.items.custom.CheckItem;
 import io.oliverj.econmod.items.custom.MonetaryNoteItem;
-import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
-import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
@@ -34,8 +32,6 @@ public class ItemRegistry {
 
     public static final Item CARD_ITEM = new CardItem();
 
-    public static final BlockItem CARD_READER = new BlockItem(BlockRegistry.CARD_READER, new Item.Settings());
-
     public static void init() {
         Registry.register(Registries.ITEM, Identifier.of(EconMod.MOD_ID, "one_bill"), ONE_MN);
         Registry.register(Registries.ITEM, Identifier.of(EconMod.MOD_ID, "five_bill"), FIVE_MN);
@@ -48,7 +44,5 @@ public class ItemRegistry {
         Registry.register(Registries.ITEM, Identifier.of(EconMod.MOD_ID, "one_thousand_bill"), ONE_THOUSAND_MN);
         Registry.register(Registries.ITEM, Identifier.of(EconMod.MOD_ID, "check"), CHECK_ITEM);
         Registry.register(Registries.ITEM, Identifier.of(EconMod.MOD_ID, "card"), CARD_ITEM);
-
-        Registry.register(Registries.ITEM, Identifier.of(EconMod.MOD_ID, "card_reader"), CARD_READER);
     }
 }
