@@ -1,17 +1,16 @@
 package io.oliverj.econmod;
 
 import io.netty.buffer.Unpooled;
-import io.oliverj.econmod.registry.ScreenHandlerRegistry;
 import io.oliverj.econmod.registry.ScreenRegistry;
-import io.oliverj.econmod.screen.CheckScreen;
-import io.oliverj.econmod.screen.CheckScreenHandler;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientLoginNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.inventory.Inventories;
+import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.login.LoginDisconnectS2CPacket;
-import net.minecraft.text.Text;
+import net.minecraft.registry.RegistryWrapper;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -52,10 +51,15 @@ public class EconModClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(Payloads.UpdateWalletPayload.ID, (payload, context) -> {
             if (payload.playerUUID().equals(MinecraftClient.getInstance().player.getUuid())) playerWallet = payload.wallet();
         });
+
+        ClientPlayNetworking.registerGlobalReceiver(Payloads.WalletInventoryPayload.ID, ((payload, context) -> {
+            Inventories.readNbt(payload.inventory(), inv.heldStacks, (RegistryWrapper.WrapperLookup) EconMod.MC_SERVER.getReloadableRegistries().createRegistryLookup());
+        }));
     }
 
     public static Wallet getPlayerWallet() {
         return playerWallet;
     }
     public static int debt_floor = 0;
+    public static SimpleInventory inv = new SimpleInventory(9);
 }

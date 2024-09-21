@@ -1,7 +1,9 @@
 package io.oliverj.econmod;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.NbtSizeValidationException;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.MinecraftServer;

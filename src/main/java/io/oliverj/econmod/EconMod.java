@@ -13,7 +13,12 @@ import net.fabricmc.fabric.api.networking.v1.ServerLoginNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.Inventories;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.SimpleInventory;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -28,6 +33,8 @@ import java.util.UUID;
 public class EconMod implements ModInitializer {
     public static final String MOD_ID = "econmod";
     public static final String MOD_VERSION = "1.21-0.0.1";
+
+    public static final HashMap<UUID, SimpleInventory> inventories = new HashMap<>();
 
     public static MinecraftServer MC_SERVER;
     public static final int VERSION_ID = 0;
@@ -51,6 +58,7 @@ public class EconMod implements ModInitializer {
 
         ServerPlayConnectionEvents.JOIN.register(((handler, sender, server) -> {
             ServerPlayerEntity player = handler.getPlayer();
+            inventories.put(player.getUuid(), new SimpleInventory(9));
 
             int debtFloor = server.getGameRules().getInt(Gamerules.DEBT_FLOOR);
 
@@ -63,6 +71,8 @@ public class EconMod implements ModInitializer {
             server.execute(() -> {
                 ServerPlayNetworking.send(player, new Payloads.UpdateWalletPayload(player.getUuid(), playerWallets.get(player.getUuid())));
             });
+
+            inventories.put(player.getUuid(), new SimpleInventory(9));
         }));
 
         ServerLoginConnectionEvents.QUERY_START.register(((handler, server, sender, synchronizer) -> {
@@ -94,6 +104,9 @@ public class EconMod implements ModInitializer {
 
         WalletUpdateCallback.EVENT.register(((player, wallet) -> {
             ServerPlayNetworking.send((ServerPlayerEntity) player, new Payloads.UpdateWalletPayload(player.getUuid(), wallet));
+            ServerPlayNetworking.send((ServerPlayerEntity) player, new Payloads.WalletInventoryPayload(Inventories.writeNbt(new NbtCompound(), inventories.get(player).heldStacks, (RegistryWrapper.WrapperLookup) MC_SERVER.getReloadableRegistries().createRegistryLookup())));
+            Persistance state = Persistance.getServerState(MC_SERVER);
+            state.playerWallets = playerWallets;
             return ActionResult.SUCCESS;
         }));
 

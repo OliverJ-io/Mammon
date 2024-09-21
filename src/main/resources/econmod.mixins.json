@@ -4,7 +4,8 @@
   "package": "io.oliverj.econmod.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "GameruleMixin"
+    "GameruleMixin",
+    "InventoryScreenHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

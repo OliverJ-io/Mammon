@@ -4,7 +4,7 @@
   "compatibilityLevel": "JAVA_21",
   "client": [
     "HandledScreenAccessor",
-    "InventoryScreenMixin"
+    "PlayerScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

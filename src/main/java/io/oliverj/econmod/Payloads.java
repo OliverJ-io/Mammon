@@ -2,6 +2,9 @@ package io.oliverj.econmod;
 
 import io.netty.buffer.ByteBuf;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.minecraft.inventory.Inventories;
+import net.minecraft.inventory.SimpleInventory;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
@@ -54,10 +57,21 @@ public class Payloads {
         }
     }
 
+    public record WalletInventoryPayload(NbtCompound inventory) implements CustomPayload {
+        public static final CustomPayload.Id<WalletInventoryPayload> ID = new CustomPayload.Id<>(Identifier.of(EconMod.MOD_ID, "wallet_inventory_payload"));
+        public static final PacketCodec<RegistryByteBuf, WalletInventoryPayload> CODEC = PacketCodec.tuple(PacketCodecs.UNLIMITED_NBT_COMPOUND, WalletInventoryPayload::inventory, WalletInventoryPayload::new);
+
+        @Override
+        public Id<? extends CustomPayload> getId() {
+            return ID;
+        }
+    }
+
     public static void RegisterPayloads() {
         PayloadTypeRegistry.playS2C().register(UpdateWalletPayload.ID, UpdateWalletPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(NotifyAdminPayload.ID, NotifyAdminPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(GamerulePayloads.Integer.ID, GamerulePayloads.Integer.CODEC);
+        PayloadTypeRegistry.playS2C().register(WalletInventoryPayload.ID, WalletInventoryPayload.CODEC);
     }
 
     public static final Identifier handshakeID = Identifier.of(EconMod.MOD_ID, "handshake_payload");
