@@ -5,7 +5,8 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "GameruleMixin",
-    "InventoryScreenHandlerMixin"
+    "InventoryScreenHandlerMixin",
+    "PlayerInventoryMixin"
   ],
   "injectors": {
     "defaultRequire": 1

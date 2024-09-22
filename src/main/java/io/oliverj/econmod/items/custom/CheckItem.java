@@ -7,6 +7,7 @@ import io.oliverj.econmod.screen.CheckScreenHandler;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.SimpleNamedScreenHandlerFactory;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -15,6 +16,8 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
+
+import java.util.List;
 
 public class CheckItem extends Item {
     public CheckItem() {
@@ -42,6 +45,11 @@ public class CheckItem extends Item {
             return Text.literal("Blank Check").styled(style -> style.withColor(Formatting.LIGHT_PURPLE));
         }
         return Text.literal(stack.get(EconComponents.VALUE_COMPONENT_TYPE) + " ¤").styled(style -> style.withColor(Formatting.GOLD)).append(Text.literal(" - Check").styled(style -> style.withColor(Formatting.LIGHT_PURPLE)));
+    }
+
+    @Override
+    public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type) {
+        //
     }
 
     @Override

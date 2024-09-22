@@ -2,6 +2,7 @@ package io.oliverj.econmod;
 
 import io.netty.buffer.Unpooled;
 import io.oliverj.econmod.events.WalletUpdateCallback;
+import io.oliverj.econmod.mixin.InventoryScreenHandlerMixin;
 import io.oliverj.econmod.registry.ItemRegistry;
 import io.oliverj.econmod.items.components.EconComponents;
 import io.oliverj.econmod.registry.ScreenHandlerRegistry;
@@ -19,6 +20,7 @@ import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -34,7 +36,7 @@ public class EconMod implements ModInitializer {
     public static final String MOD_ID = "econmod";
     public static final String MOD_VERSION = "1.21-0.0.1";
 
-    public static final HashMap<UUID, SimpleInventory> inventories = new HashMap<>();
+    public static final HashMap<UUID, Inventory> inventories = new HashMap<>();
 
     public static MinecraftServer MC_SERVER;
     public static final int VERSION_ID = 0;
@@ -104,7 +106,9 @@ public class EconMod implements ModInitializer {
 
         WalletUpdateCallback.EVENT.register(((player, wallet) -> {
             ServerPlayNetworking.send((ServerPlayerEntity) player, new Payloads.UpdateWalletPayload(player.getUuid(), wallet));
-            ServerPlayNetworking.send((ServerPlayerEntity) player, new Payloads.WalletInventoryPayload(Inventories.writeNbt(new NbtCompound(), inventories.get(player).heldStacks, (RegistryWrapper.WrapperLookup) MC_SERVER.getReloadableRegistries().createRegistryLookup())));
+            // ServerPlayNetworking.send((ServerPlayerEntity) player, new Payloads.WalletInventoryPayload(Inventories.writeNbt(new NbtCompound(), inventories.get(player).heldStacks, (RegistryWrapper.WrapperLookup) MC_SERVER.getReloadableRegistries().createRegistryLookup())));
+            SimpleInventory inv = new SimpleInventory(9);
+            inv.setStack(0, ItemRegistry.ONE_MN.getDefaultStack());
             Persistance state = Persistance.getServerState(MC_SERVER);
             state.playerWallets = playerWallets;
             return ActionResult.SUCCESS;
