@@ -1,56 +1,62 @@
 package io.oliverj.econmod;
 
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtHelper;
-import net.minecraft.nbt.NbtSizeValidationException;
-import net.minecraft.registry.RegistryWrapper;
+import com.mojang.serialization.Codec;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.PersistentState;
-import net.minecraft.world.PersistentStateManager;
-import net.minecraft.world.World;
+import net.minecraft.util.ExtraCodecs;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.saveddata.SavedDataType;
+import net.minecraft.world.level.storage.DimensionDataStorage;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
-public class Persistance extends PersistentState {;
+public class Persistance extends SavedData {
 
     public HashMap<UUID, Wallet> playerWallets = new HashMap<>();
 
-    @Override
-    public NbtCompound writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-        NbtCompound map = new NbtCompound();
-        for (Map.Entry<UUID, Wallet> entry : playerWallets.entrySet()) {
+    public static Tag writeNbt(Persistance persistance) {
+        CompoundTag nbt = new CompoundTag();
+        CompoundTag map = new CompoundTag();
+        for (Map.Entry<UUID, Wallet> entry : persistance.playerWallets.entrySet()) {
             map.putDouble(entry.getKey().toString(), entry.getValue().getBalance());
         }
         nbt.put("player_wallets", map);
         return nbt;
     }
 
-    public static Persistance createFromNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup) {
+    public static Persistance createFromNbt(Tag tag) {
+        CompoundTag nbt = (CompoundTag) tag;
         Persistance state = new Persistance();
-        NbtCompound map = tag.getCompound("player_wallets");
-        for (String key : map.getKeys()) {
-            state.playerWallets.put(UUID.fromString(key), new Wallet(map.getDouble(key)));
+        CompoundTag map = nbt.getCompound("player_wallets").get();
+        for (String key : map.keySet()) {
+            state.playerWallets.put(UUID.fromString(key), new Wallet(map.getDouble(key).get()));
         }
         return state;
     }
 
-    private static Type<Persistance> type = new Type<>(
-            Persistance::new,
+    private static final Codec<Persistance> CODEC = ExtraCodecs.NBT.xmap(
             Persistance::createFromNbt,
+            Persistance::writeNbt
+    );
+
+    private static final SavedDataType<Persistance> type = new SavedDataType<>(
+            "econmod",
+            Persistance::new,
+            CODEC,
             null
     );
 
     public static Persistance getServerState(MinecraftServer server) {
-        PersistentStateManager persistentStateManager = server.getWorld(World.OVERWORLD).getPersistentStateManager();
+        DimensionDataStorage persistentStateManager = Objects.requireNonNull(server.getLevel(Level.OVERWORLD)).getDataStorage();
 
-        Persistance state = persistentStateManager.getOrCreate(type, EconMod.MOD_ID);
+        Persistance state = persistentStateManager.computeIfAbsent(type);
 
-        state.markDirty();
+        state.setDirty();
 
         return state;
     }

@@ -3,21 +3,21 @@ package io.oliverj.econmod.events;
 import io.oliverj.econmod.Wallet;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ActionResult;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 
 public interface WalletUpdateCallback {
     Event<WalletUpdateCallback> EVENT = EventFactory.createArrayBacked(WalletUpdateCallback.class,
             (listeners) -> (player, wallet) -> {
         for (WalletUpdateCallback listener : listeners) {
-            ActionResult result = listener.interact(player, wallet);
+            InteractionResult result = listener.interact(player, wallet);
 
-            if (result != ActionResult.PASS) {
+            if (result != InteractionResult.PASS) {
                 return result;
             }
         }
-        return ActionResult.PASS;
+        return InteractionResult.PASS;
             });
 
-    ActionResult interact(PlayerEntity player, Wallet wallet);
+    InteractionResult interact(Player player, Wallet wallet);
 }

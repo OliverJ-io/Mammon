@@ -13,26 +13,22 @@
   "environment": "*",
   "entrypoints": {
     "client": [
-      "io.oliverj.econmod.EconModClient"
+      "io.oliverj.econmod.client.EconModClient"
     ],
     "main": [
       "io.oliverj.econmod.EconMod"
     ],
     "fabric-datagen": [
-      "io.oliverj.econmod.datagen.EconModDataGeneration"
+      "io.oliverj.econmod.client.datagen.EconModDataGeneration"
     ]
   },
   "mixins": [
-    "econmod.mixins.json",
-    {
-      "config": "econmod.client.mixins.json",
-      "environment": "client"
-    }
+    "econmod.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.16.5",
+    "fabricloader": ">=0.18.2",
     "fabric": "*",
-    "minecraft": "1.21"
+    "minecraft": "1.21.11"
   },
   "accessWidener": "econ.accesswidener"
 }

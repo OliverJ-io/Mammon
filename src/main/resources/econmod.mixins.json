@@ -4,11 +4,22 @@
   "package": "io.oliverj.econmod.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "GameruleMixin",
-    "InventoryScreenHandlerMixin",
-    "PlayerInventoryMixin"
+    "GameruleMixin"
   ],
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "client": [
+    "client.AbstractContainerScreenAccessor",
+    "client.AbstractRecipeBookScreenAccessor",
+    "client.CreativeModeInventoryScreenMixin",
+    "client.InventoryScreenMixin",
+    "client.MinecraftMixin",
+    "client.font.FontAccessor",
+    "client.gui.GuiGraphicsAccessor",
+    "client.gui.GuiGraphicsMixin",
+    "client.gui.InGameHudMixin",
+    "client.input.MouseHandlerMixin",
+    "client.render.GameRendererMixin"
+  ]
 }

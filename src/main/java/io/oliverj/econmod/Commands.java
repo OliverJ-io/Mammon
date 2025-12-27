@@ -2,30 +2,29 @@ package io.oliverj.econmod;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
-import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.oliverj.econmod.items.custom.CheckItem;
-import net.minecraft.command.argument.EntityArgumentType;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import org.jetbrains.annotations.Contract;
 
 import java.util.Collection;
 
-import static net.minecraft.server.command.CommandManager.literal;
-import static net.minecraft.server.command.CommandManager.argument;
+import static net.minecraft.commands.Commands.argument;
+import static net.minecraft.commands.Commands.literal;
 
 public class Commands {
-    public static void EconCommand(CommandDispatcher<ServerCommandSource> dispatcher) {
-        LiteralCommandNode<ServerCommandSource> root = dispatcher.register(literal("econ")
+    public static void EconCommand(CommandDispatcher<CommandSourceStack> dispatcher) {
+        LiteralCommandNode<CommandSourceStack> root = dispatcher.register(literal("econ")
                 .then(literal("add")
                         .then(argument("amount", DoubleArgumentType.doubleArg())
                                 .executes(ctx -> addEconBalance(ctx.getSource().getPlayer(), DoubleArgumentType.getDouble(ctx, "amount")))
                         )
-                        .then(argument("players", EntityArgumentType.players())
+                        .then(argument("players", EntityArgument.players())
                                 .then(argument("amount", DoubleArgumentType.doubleArg())
-                                        .executes(ctx -> addEconBalance(EntityArgumentType.getPlayers(ctx, "players"), DoubleArgumentType.getDouble(ctx, "amount"))
+                                        .executes(ctx -> addEconBalance(EntityArgument.getPlayers(ctx, "players"), DoubleArgumentType.getDouble(ctx, "amount"))
                                         )
                                 )
                         )
@@ -35,9 +34,9 @@ public class Commands {
                                 .executes(ctx -> setEconBalance(ctx.getSource().getPlayer(), DoubleArgumentType.getDouble(ctx, "amount"))
                                 )
                         )
-                        .then(argument("players", EntityArgumentType.players())
+                        .then(argument("players", EntityArgument.players())
                                 .then(argument("amount", DoubleArgumentType.doubleArg())
-                                        .executes(ctx -> setEconBalance(EntityArgumentType.getPlayers(ctx, "players"), DoubleArgumentType.getDouble(ctx, "amount"))
+                                        .executes(ctx -> setEconBalance(EntityArgument.getPlayers(ctx, "players"), DoubleArgumentType.getDouble(ctx, "amount"))
                                         )
                                 )
                         )
@@ -47,9 +46,9 @@ public class Commands {
                                 .executes(ctx -> removeEconBalance(ctx.getSource().getPlayer(), DoubleArgumentType.getDouble(ctx, "amount"))
                                 )
                         )
-                        .then(argument("players", EntityArgumentType.players())
+                        .then(argument("players", EntityArgument.players())
                                 .then(argument("amount", DoubleArgumentType.doubleArg())
-                                        .executes(ctx -> removeEconBalance(EntityArgumentType.getPlayers(ctx, "players"), DoubleArgumentType.getDouble(ctx, "amount"))
+                                        .executes(ctx -> removeEconBalance(EntityArgument.getPlayers(ctx, "players"), DoubleArgumentType.getDouble(ctx, "amount"))
                                         )
                                 )
                         )
@@ -57,35 +56,35 @@ public class Commands {
                 .then(literal("get")
                         .executes(ctx -> getEconBalance(ctx.getSource().getPlayer())
                         )
-                        .then(argument("player", EntityArgumentType.player())
-                                .executes(ctx -> getEconBalance(EntityArgumentType.getPlayer(ctx, "player"))
+                        .then(argument("player", EntityArgument.player())
+                                .executes(ctx -> getEconBalance(EntityArgument.getPlayer(ctx, "player"))
                                 )
                         )
                 )
         );
-        LiteralCommandNode<ServerCommandSource> issueCmd = dispatcher.register(literal("econ")
+        LiteralCommandNode<CommandSourceStack> issueCmd = dispatcher.register(literal("econ")
                 .then(literal("issue")
                         .then(argument("amount", DoubleArgumentType.doubleArg())
                                 .then(literal("-s")
-                                        .then(argument("sender", EntityArgumentType.player())
+                                        .then(argument("sender", EntityArgument.player())
                                                 .executes(ctx ->
-                                                        createCheckItem(ctx.getSource().getPlayer(), DoubleArgumentType.getDouble(ctx, "amount"), EntityArgumentType.getPlayer(ctx, "sender"), null))
+                                                        createCheckItem(ctx.getSource().getPlayer(), DoubleArgumentType.getDouble(ctx, "amount"), EntityArgument.getPlayer(ctx, "sender"), null))
                                                 .then(literal("-r")
-                                                        .then(argument("receiver", EntityArgumentType.player())
+                                                        .then(argument("receiver", EntityArgument.player())
                                                                 .executes(ctx ->
-                                                                        createCheckItem(ctx.getSource().getPlayer(), DoubleArgumentType.getDouble(ctx, "amount"), EntityArgumentType.getPlayer(ctx, "sender"), EntityArgumentType.getPlayer(ctx, "receiver")))
+                                                                        createCheckItem(ctx.getSource().getPlayer(), DoubleArgumentType.getDouble(ctx, "amount"), EntityArgument.getPlayer(ctx, "sender"), EntityArgument.getPlayer(ctx, "receiver")))
                                                         )
                                                 )
                                         )
                                 )
                                 .then(literal("-r")
-                                        .then(argument("receiver", EntityArgumentType.player())
+                                        .then(argument("receiver", EntityArgument.player())
                                                 .executes(ctx ->
-                                                        createCheckItem(ctx.getSource().getPlayer(), DoubleArgumentType.getDouble(ctx, "amount"), null, EntityArgumentType.getPlayer(ctx, "receiver")))
+                                                        createCheckItem(ctx.getSource().getPlayer(), DoubleArgumentType.getDouble(ctx, "amount"), null, EntityArgument.getPlayer(ctx, "receiver")))
                                                 .then(literal("-s")
-                                                        .then(argument("sender", EntityArgumentType.player())
+                                                        .then(argument("sender", EntityArgument.player())
                                                                 .executes(ctx ->
-                                                                        createCheckItem(ctx.getSource().getPlayer(), DoubleArgumentType.getDouble(ctx, "amount"), EntityArgumentType.getPlayer(ctx, "sender"), EntityArgumentType.getPlayer(ctx, "receiver")))
+                                                                        createCheckItem(ctx.getSource().getPlayer(), DoubleArgumentType.getDouble(ctx, "amount"), EntityArgument.getPlayer(ctx, "sender"), EntityArgument.getPlayer(ctx, "receiver")))
                                                         )
                                                 )
                                         )
@@ -95,56 +94,56 @@ public class Commands {
                         )
                 )
         );
-        LiteralCommandNode<ServerCommandSource> balCommand = dispatcher.register(literal("bal")
+        LiteralCommandNode<CommandSourceStack> balCommand = dispatcher.register(literal("bal")
                 .redirect(root.getChild("get")));
     }
 
-    private static int setEconBalance(ServerPlayerEntity player, double amount) {
+    private static int setEconBalance(ServerPlayer player, double amount) {
         EconMod.setPlayerBalance(player, amount);
         return 1;
     }
 
-    private static int setEconBalance(Collection<ServerPlayerEntity> players, double amount) {
-        for (ServerPlayerEntity player : players) {
+    private static int setEconBalance(Collection<ServerPlayer> players, double amount) {
+        for (ServerPlayer player : players) {
             EconMod.setPlayerBalance(player, amount);
         }
         return 1;
     }
 
-    private static int addEconBalance(ServerPlayerEntity player, double amount) {
+    private static int addEconBalance(ServerPlayer player, double amount) {
         EconMod.addPlayerBalance(player, amount);
         return 1;
     }
 
-    private static int addEconBalance(Collection<ServerPlayerEntity> players, double amount) {
-        for (ServerPlayerEntity player : players) {
+    private static int addEconBalance(Collection<ServerPlayer> players, double amount) {
+        for (ServerPlayer player : players) {
             EconMod.addPlayerBalance(player, amount);
         }
         return 1;
     }
 
-    private static int removeEconBalance(ServerPlayerEntity player, double amount) {
+    private static int removeEconBalance(ServerPlayer player, double amount) {
         addEconBalance(player, -amount);
         return 1;
     }
 
-    private static int removeEconBalance(Collection<ServerPlayerEntity> players, double amount) {
+    private static int removeEconBalance(Collection<ServerPlayer> players, double amount) {
         addEconBalance(players, -amount);
         return 1;
     }
 
-    private static int getEconBalance(ServerPlayerEntity player) {
-        player.sendMessage(Text.literal(Double.toString(EconMod.getPlayerBalance(player))));
+    private static int getEconBalance(ServerPlayer player) {
+        player.sendSystemMessage(Component.literal(Double.toString(EconMod.getPlayerBalance(player))));
         return 1;
     }
 
-    private static int showEconHelp(ServerPlayerEntity player) {
-        player.sendMessage(Text.literal("/econ <command> [player] <amount>"));
+    private static int showEconHelp(ServerPlayer player) {
+        player.sendSystemMessage(Component.literal("/econ <command> [player] <amount>"));
         return 1;
     }
 
-    private static int createCheckItem(ServerPlayerEntity player, double value, ServerPlayerEntity sender, ServerPlayerEntity receiver) {
-        player.giveItemStack(CheckItem.createItem(value, sender, receiver));
+    private static int createCheckItem(ServerPlayer player, double value, ServerPlayer sender, ServerPlayer receiver) {
+        player.addItem(CheckItem.createItem(value, sender, receiver));
         return 1;
     }
 }

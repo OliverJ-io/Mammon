@@ -2,18 +2,18 @@ package io.oliverj.econmod.registry;
 
 import io.oliverj.econmod.EconMod;
 import io.oliverj.econmod.screen.CheckScreenHandler;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.resource.featuretoggle.FeatureFlags;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.flag.FeatureFlags;
+import net.minecraft.world.inventory.MenuType;
 
 public class ScreenHandlerRegistry {
 
-    public static ScreenHandlerType<CheckScreenHandler> CHECK_SCREEN;
+    public static MenuType<CheckScreenHandler> CHECK_SCREEN;
 
     public static void registerScreenHandlers() {
-        CHECK_SCREEN = Registry.register(Registries.SCREEN_HANDLER, Identifier.of(EconMod.MOD_ID, "check"),
-                new ScreenHandlerType<>(CheckScreenHandler::new, FeatureFlags.VANILLA_FEATURES));
+        CHECK_SCREEN = Registry.register(BuiltInRegistries.MENU, EconMod.id("check"),
+                new MenuType<>(CheckScreenHandler::new, FeatureFlags.VANILLA_SET));
     }
 }

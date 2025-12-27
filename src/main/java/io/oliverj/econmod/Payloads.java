@@ -1,69 +1,66 @@
 package io.oliverj.econmod;
 
-import io.netty.buffer.ByteBuf;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
-import net.minecraft.inventory.Inventories;
-import net.minecraft.inventory.SimpleInventory;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.network.encoding.StringEncoding;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.Entity;
+import org.jspecify.annotations.NonNull;
 
 import java.util.UUID;
 
 public class Payloads {
 
-    public record UpdateWalletPayload(UUID playerUUID, Wallet wallet) implements CustomPayload {
-        public static final CustomPayload.Id<UpdateWalletPayload> ID = new CustomPayload.Id<>(Identifier.of(EconMod.MOD_ID, "record_wallet_payload"));
-        public static final PacketCodec<RegistryByteBuf, UpdateWalletPayload> CODEC = PacketCodec.tuple(CODEC_UUID, UpdateWalletPayload::playerUUID, CODEC_WALLET, UpdateWalletPayload::wallet, UpdateWalletPayload::new);
+    public record UpdateWalletPayload(UUID playerUUID, Wallet wallet) implements CustomPacketPayload {
+        public static final CustomPacketPayload.Type<UpdateWalletPayload> ID = new CustomPacketPayload.Type<>(EconMod.id("record_wallet_payload"));
+        public static final StreamCodec<RegistryFriendlyByteBuf, UpdateWalletPayload> CODEC = StreamCodec.composite(CODEC_UUID, UpdateWalletPayload::playerUUID, CODEC_WALLET, UpdateWalletPayload::wallet, UpdateWalletPayload::new);
         @Override
-        public Id<? extends CustomPayload> getId() { return ID; }
+        public @NonNull Type<? extends CustomPacketPayload> type() { return ID; }
     }
 
-    public record NotifyAdminPayload(UUID playerUUID, boolean isAdmin) implements CustomPayload {
-        public static final CustomPayload.Id<NotifyAdminPayload> ID = new CustomPayload.Id<>(Identifier.of(EconMod.MOD_ID, "notify_admin_payload"));
-        public static final PacketCodec<RegistryByteBuf, NotifyAdminPayload> CODEC = PacketCodec.tuple(CODEC_UUID, NotifyAdminPayload::playerUUID, PacketCodecs.BOOL, NotifyAdminPayload::isAdmin, NotifyAdminPayload::new);
+    public record NotifyAdminPayload(UUID playerUUID, boolean isAdmin) implements CustomPacketPayload {
+        public static final CustomPacketPayload.Type<NotifyAdminPayload> ID = new CustomPacketPayload.Type<>(EconMod.id("notify_admin_payload"));
+        public static final StreamCodec<RegistryFriendlyByteBuf, NotifyAdminPayload> CODEC = StreamCodec.composite(CODEC_UUID, NotifyAdminPayload::playerUUID, ByteBufCodecs.BOOL, NotifyAdminPayload::isAdmin, NotifyAdminPayload::new);
         @Override
-        public Id<? extends CustomPayload> getId() { return ID; }
+        public @NonNull Type<? extends CustomPacketPayload> type() { return ID; }
+    }
+
+    public record OpenCardPopupPayload(Entity targetEntity) implements CustomPacketPayload {
+        public static final CustomPacketPayload.Type<OpenCardPopupPayload> ID = new CustomPacketPayload.Type<>(EconMod.id("open_card_popup"));
+        public static final StreamCodec<RegistryFriendlyByteBuf, OpenCardPopupPayload> CODEC = StreamCodec.composite(CODEC_ENTITY, OpenCardPopupPayload::targetEntity, OpenCardPopupPayload::new);
+        @Override
+        public @NonNull Type<? extends CustomPacketPayload> type() { return ID; }
     }
 
     public static class GamerulePayloads {
-        public record Boolean(String gameruleName, boolean value) implements CustomPayload
+        public record Boolean(String gameruleName, boolean value) implements CustomPacketPayload
         {
-            public static final CustomPayload.Id<Boolean> ID = new CustomPayload.Id<>(Identifier.of(EconMod.MOD_ID, "gamerule_boolean_payload"));
-            public static final PacketCodec<RegistryByteBuf, Boolean> CODEC = PacketCodec.tuple(PacketCodecs.STRING, Boolean::gameruleName, PacketCodecs.BOOL, Boolean::value, Boolean::new);
+            public static final CustomPacketPayload.Type<Boolean> ID = new CustomPacketPayload.Type<>(EconMod.id("gamerule_boolean_payload"));
+            public static final StreamCodec<RegistryFriendlyByteBuf, Boolean> CODEC = StreamCodec.composite(ByteBufCodecs.STRING_UTF8, Boolean::gameruleName, ByteBufCodecs.BOOL, Boolean::value, Boolean::new);
             @Override
-            public CustomPayload.Id<? extends CustomPayload> getId() { return ID; }
+            public CustomPacketPayload.@NonNull Type<? extends CustomPacketPayload> type() { return ID; }
         }
 
-        public record Double(String gameruleName, double value) implements CustomPayload {
-            public static final CustomPayload.Id<Double> ID = new CustomPayload.Id<>(Identifier.of(EconMod.MOD_ID, "gamerule_double_payload"));
-            public static final PacketCodec<RegistryByteBuf, Double> CODEC = PacketCodec.tuple(PacketCodecs.STRING, Double::gameruleName, PacketCodecs.DOUBLE, Double::value, Double::new);
+        public record Double(String gameruleName, double value) implements CustomPacketPayload {
+            public static final CustomPacketPayload.Type<Double> ID = new CustomPacketPayload.Type<>(EconMod.id("gamerule_double_payload"));
+            public static final StreamCodec<RegistryFriendlyByteBuf, Double> CODEC = StreamCodec.composite(ByteBufCodecs.STRING_UTF8, Double::gameruleName, ByteBufCodecs.DOUBLE, Double::value, Double::new);
 
             @Override
-            public CustomPayload.Id<? extends CustomPayload> getId() {
+            public CustomPacketPayload.@NonNull Type<? extends CustomPacketPayload> type() {
                 return ID;
             }
         }
 
-        public record Integer(String gameruleName, int value) implements CustomPayload {
-            public static final CustomPayload.Id<Integer> ID = new CustomPayload.Id<>(Identifier.of(EconMod.MOD_ID, "gamerule_integer_payload"));
-            public static final PacketCodec<RegistryByteBuf, Integer> CODEC = PacketCodec.tuple(PacketCodecs.STRING, Integer::gameruleName, PacketCodecs.INTEGER, Integer::value, Integer::new);
+        public record Integer(String gameruleName, int value) implements CustomPacketPayload {
+            public static final CustomPacketPayload.Type<Integer> ID = new CustomPacketPayload.Type<>(EconMod.id("gamerule_integer_payload"));
+            public static final StreamCodec<RegistryFriendlyByteBuf, Integer> CODEC = StreamCodec.composite(ByteBufCodecs.STRING_UTF8, Integer::gameruleName, ByteBufCodecs.VAR_INT, Integer::value, Integer::new);
             @Override
-            public CustomPayload.Id<? extends CustomPayload> getId() { return ID; }
-        }
-    }
-
-    public record WalletInventoryPayload(NbtCompound inventory) implements CustomPayload {
-        public static final CustomPayload.Id<WalletInventoryPayload> ID = new CustomPayload.Id<>(Identifier.of(EconMod.MOD_ID, "wallet_inventory_payload"));
-        public static final PacketCodec<RegistryByteBuf, WalletInventoryPayload> CODEC = PacketCodec.tuple(PacketCodecs.UNLIMITED_NBT_COMPOUND, WalletInventoryPayload::inventory, WalletInventoryPayload::new);
-
-        @Override
-        public Id<? extends CustomPayload> getId() {
-            return ID;
+            public CustomPacketPayload.@NonNull Type<? extends CustomPacketPayload> type() { return ID; }
         }
     }
 
@@ -71,32 +68,48 @@ public class Payloads {
         PayloadTypeRegistry.playS2C().register(UpdateWalletPayload.ID, UpdateWalletPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(NotifyAdminPayload.ID, NotifyAdminPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(GamerulePayloads.Integer.ID, GamerulePayloads.Integer.CODEC);
-        PayloadTypeRegistry.playS2C().register(WalletInventoryPayload.ID, WalletInventoryPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(OpenCardPopupPayload.ID, OpenCardPopupPayload.CODEC);
     }
 
-    public static final Identifier handshakeID = Identifier.of(EconMod.MOD_ID, "handshake_payload");
+    public static final Identifier handshakeID = EconMod.id("handshake_payload");
 
-    public static PacketCodec<ByteBuf, UUID> CODEC_UUID = new PacketCodec<>() {
+    public static StreamCodec<RegistryFriendlyByteBuf, UUID> CODEC_UUID = new StreamCodec<>() {
         @Override
-        public UUID decode(ByteBuf buf) {
-            return UUID.fromString(StringEncoding.decode(buf, 32767));
+        public UUID decode(RegistryFriendlyByteBuf buf) {
+            return buf.readUUID();
         }
 
         @Override
-        public void encode(ByteBuf buf, UUID value) {
-            StringEncoding.encode(buf, value.toString(), 32767);
+        public void encode(RegistryFriendlyByteBuf buf, UUID value) {
+            buf.writeUUID(value);
         }
     };
 
-    public static PacketCodec<ByteBuf, Wallet> CODEC_WALLET = new PacketCodec<>() {
+    public static StreamCodec<RegistryFriendlyByteBuf, Wallet> CODEC_WALLET = new StreamCodec<>() {
         @Override
-        public Wallet decode(ByteBuf buf) {
-            return new Wallet(Double.valueOf(StringEncoding.decode(buf, 32767)));
+        public Wallet decode(RegistryFriendlyByteBuf buf) {
+            return new Wallet(buf.readDouble());
         }
 
         @Override
-        public void encode(ByteBuf buf, Wallet value) {
-            StringEncoding.encode(buf, String.valueOf(value.getBalance()), 32767);
+        public void encode(RegistryFriendlyByteBuf buf, Wallet value) {
+            buf.writeDouble(value.getBalance());
+        }
+    };
+
+    public static StreamCodec<RegistryFriendlyByteBuf, Entity> CODEC_ENTITY = new StreamCodec<>() {
+        @Override
+        @Environment(EnvType.CLIENT)
+        public Entity decode(RegistryFriendlyByteBuf buf) {
+            int id = buf.readVarInt();
+
+            assert Minecraft.getInstance().level != null;
+            return Minecraft.getInstance().level.getEntity(id);
+        }
+
+        @Override
+        public void encode(RegistryFriendlyByteBuf buf, Entity value) {
+            buf.writeVarInt(value.getId());
         }
     };
 }

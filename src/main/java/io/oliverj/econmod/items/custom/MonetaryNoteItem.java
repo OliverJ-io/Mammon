@@ -1,28 +1,28 @@
 package io.oliverj.econmod.items.custom;
 
 import io.oliverj.econmod.EconMod;
-import io.oliverj.econmod.items.components.EconComponents;
-import net.fabricmc.fabric.api.item.v1.FabricItem;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
-import net.minecraft.world.World;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import org.jspecify.annotations.NonNull;
 
 public class MonetaryNoteItem extends Item {
 
     private final int value;
-    public MonetaryNoteItem(int value) {
-        super(new Item.Settings().maxCount(64));
+    public MonetaryNoteItem(int value, ResourceKey<Item> key) {
+        super(new Item.Properties().stacksTo(64).setId(key));
         this.value = value;
     }
 
     @Override
-    public Text getName(ItemStack stack) {
-        return Text.literal(value + " ¤").styled(style -> style.withColor(Formatting.GOLD));
+    public @NonNull Component getName(@NonNull ItemStack stack) {
+        return Component.literal(value + " ¤").withStyle(style -> style.withColor(ChatFormatting.GOLD));
     }
 
     public int getValue() {
@@ -30,19 +30,19 @@ public class MonetaryNoteItem extends Item {
     }
 
     @Override
-    public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
+    public @NonNull InteractionResult use(@NonNull Level world, @NonNull Player user, @NonNull InteractionHand hand) {
         super.use(world, user, hand);
 
-        if (world.isClient()) return TypedActionResult.pass(user.getStackInHand(hand));
+        if (world.isClientSide()) return InteractionResult.PASS;
 
-        if (user.isSneaking()) {
-            ItemStack stack = user.getStackInHand(hand);
+        if (user.isCrouching()) {
+            ItemStack stack = user.getItemInHand(hand);
             EconMod.addPlayerBalance(user,value * stack.getCount());
-            user.getInventory().removeStack(user.getInventory().selectedSlot);
+            user.getInventory().removeItemNoUpdate(user.getInventory().getSelectedSlot());
         } else {
             EconMod.addPlayerBalance(user, value);
-            user.getInventory().removeStack(user.getInventory().selectedSlot, 1);
+            user.getInventory().removeItem(user.getInventory().getSelectedSlot(), 1);
         }
-        return TypedActionResult.success(user.getStackInHand(hand));
+        return InteractionResult.SUCCESS;
     }
 }

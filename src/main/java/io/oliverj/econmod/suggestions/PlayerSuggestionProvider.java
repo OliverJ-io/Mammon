@@ -5,17 +5,17 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.commands.CommandSourceStack;
 
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 
-public class PlayerSuggestionProvider implements SuggestionProvider<ServerCommandSource> {
+public class PlayerSuggestionProvider implements SuggestionProvider<CommandSourceStack> {
     @Override
-    public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) throws CommandSyntaxException {
-        ServerCommandSource source = context.getSource();
+    public CompletableFuture<Suggestions> getSuggestions(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) {
+        CommandSourceStack source = context.getSource();
 
-        Collection<String> playerNames = source.getPlayerNames();
+        Collection<String> playerNames = source.getOnlinePlayerNames();
 
         for (String playerName : playerNames) {
             builder.suggest(playerName);

@@ -1,12 +1,23 @@
-// 1.21	2024-09-15T19:45:44.8228362	EconMod/Model Definitions
-f6f51db43252e69f7d390d5d91a03fd3b43e4b86 assets\econmod\models\item\one_thousand_bill.json
-35f8c70b702221a9d89f480bb395bbe672b6fa38 assets\econmod\models\item\ten_bill.json
-ac28fae85fec9995055bd6f929432bdcbfc9da6f assets\econmod\models\item\one_bill.json
-3b4c390f8659393c4d55d840a224f9b98473e3c7 assets\econmod\models\item\fifty_bill.json
-1997df239eb36b1b1822d1e547aae9ec65348676 assets\econmod\models\item\twenty_bill.json
-e2943fc84cd0768d90e2828b6c57517954524d99 assets\econmod\models\item\five_bill.json
-b5d7f69a47a35c010febca72baf14af34abfeb9c assets\econmod\models\item\one_hundred_bill.json
-eecc455fa898d2ddff16ea87e859ae5972b22827 assets\econmod\models\item\five_hundred_bill.json
-0c92e64a523cfdd2136d3330fd4990cd7da4e1e0 assets\econmod\models\item\card.json
-0be67dea1671eeb1fb6bc7c080bb042819e2c7ca assets\econmod\models\item\check.json
-145b7af3bf1447904de9c23114e34d43009b40ad assets\econmod\models\item\two_hundred_bill.json
+// 1.21.11	-999999999-01-01T00:00:00	EconMod/Model Definitions
+305f945567d5d7b44e15d5fa5d0d326432f057eb assets/econmod/items/card.json
+5e40e2c65ea133183dd6365cd57f1043cd3147d8 assets/econmod/items/check.json
+7540a2882b1e214961e23dc923215a9b486982c7 assets/econmod/items/fifty_bill.json
+8ada0f90ca88a4600f388c3d539125339eaa3a71 assets/econmod/items/five_bill.json
+32c29240692b0f9d2b3f05fd350628417cb18b5e assets/econmod/items/five_hundred_bill.json
+5984fb6ed6f899f2152e6a82921b17d7d4923d24 assets/econmod/items/one_bill.json
+f3c9bd972fe7ffdc20af28575751e55d21b5c239 assets/econmod/items/one_hundred_bill.json
+574e820e5a555a4543e714cf3b69b75eb67a4b61 assets/econmod/items/one_thousand_bill.json
+55ce122d41d681b4abc119b33ee2ee37a33c1a2e assets/econmod/items/ten_bill.json
+59bafcebfcb17b233130d3f449e97957b0847d1c assets/econmod/items/twenty_bill.json
+d3bb5e9a297fbf2f5777257e3991caa27899a582 assets/econmod/items/two_hundred_bill.json
+0c92e64a523cfdd2136d3330fd4990cd7da4e1e0 assets/econmod/models/item/card.json
+0be67dea1671eeb1fb6bc7c080bb042819e2c7ca assets/econmod/models/item/check.json
+3b4c390f8659393c4d55d840a224f9b98473e3c7 assets/econmod/models/item/fifty_bill.json
+e2943fc84cd0768d90e2828b6c57517954524d99 assets/econmod/models/item/five_bill.json
+eecc455fa898d2ddff16ea87e859ae5972b22827 assets/econmod/models/item/five_hundred_bill.json
+ac28fae85fec9995055bd6f929432bdcbfc9da6f assets/econmod/models/item/one_bill.json
+b5d7f69a47a35c010febca72baf14af34abfeb9c assets/econmod/models/item/one_hundred_bill.json
+f6f51db43252e69f7d390d5d91a03fd3b43e4b86 assets/econmod/models/item/one_thousand_bill.json
+35f8c70b702221a9d89f480bb395bbe672b6fa38 assets/econmod/models/item/ten_bill.json
+1997df239eb36b1b1822d1e547aae9ec65348676 assets/econmod/models/item/twenty_bill.json
+145b7af3bf1447904de9c23114e34d43009b40ad assets/econmod/models/item/two_hundred_bill.json
