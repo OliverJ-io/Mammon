@@ -114,14 +114,14 @@ public class EconMod implements ModInitializer {
 
     public static void setPlayerBalance(Player player, double amount) {
         playerWallets.put(player.getUUID(), new Wallet(amount));
-        InteractionResult result = WalletUpdateCallback.EVENT.invoker().interact(player, playerWallets.get(player.getUUID()));
+        WalletUpdateCallback.EVENT.invoker().interact(player, playerWallets.get(player.getUUID()));
     }
 
     public static void addPlayerBalance(Player player, double amount, String uuid) {
         if (uuid != null) {
             addPlayerBalance(MC_SERVER.getPlayerList().getPlayer(UUID.fromString(uuid)), -amount);
             addPlayerBalance(player, amount);
-            InteractionResult result = WalletUpdateCallback.EVENT.invoker().interact(player, playerWallets.get(player.getUUID()));
+            WalletUpdateCallback.EVENT.invoker().interact(player, playerWallets.get(player.getUUID()));
             return;
         }
         addPlayerBalance(player, amount);
@@ -129,7 +129,7 @@ public class EconMod implements ModInitializer {
 
     public static void addPlayerBalance(Player player, double amount) {
         setPlayerBalance(player, getPlayerBalance(player) + amount);
-        InteractionResult result = WalletUpdateCallback.EVENT.invoker().interact(player, playerWallets.get(player.getUUID()));
+        WalletUpdateCallback.EVENT.invoker().interact(player, playerWallets.get(player.getUUID()));
     }
 
     public static Component getServerErrorMessage(ErrorReason reason) {

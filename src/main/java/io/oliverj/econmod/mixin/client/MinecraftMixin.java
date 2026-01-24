@@ -1,6 +1,5 @@
 package io.oliverj.econmod.mixin.client;
 
-import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
 import io.oliverj.econmod.client.EconModClient;

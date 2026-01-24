@@ -51,7 +51,6 @@ public class EconModClient implements ClientModInitializer {
             String gameruleName = payload.gameruleName();
 
             if (gameruleName.equals(GameRules.DEBT_FLOOR.id())) {
-                int val = payload.value();
                 debt_floor = payload.value();
             }
         }));

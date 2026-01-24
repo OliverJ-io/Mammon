@@ -37,8 +37,8 @@ public class CheckScreen extends AbstractContainerScreen<CheckScreenHandler> imp
     }
 
     protected void setup() {
-        int i = (this.width - this.width) / 2;
-        int j = (this.height - this.height) / 2;
+        int i = (this.width - this.height) / 2;
+        int j = (this.height - this.width) / 2;
         this.valueField = new EditBox(this.font, i + 62, j + 24, 103, 12, Component.translatable("container.value"));
         this.valueField.setCanLoseFocus(true);
         this.valueField.setTextColor(-1);
@@ -57,6 +57,7 @@ public class CheckScreen extends AbstractContainerScreen<CheckScreenHandler> imp
         }).bounds(i + 28, j + 24, 30, 20).build();
     }
 
+    @Override
     protected void setInitialFocus() {
         this.setInitialFocus(this.valueField);
     }
@@ -75,23 +76,27 @@ public class CheckScreen extends AbstractContainerScreen<CheckScreenHandler> imp
         return this.valueField.keyPressed(new KeyEvent(keyCode, scanCode, modifiers)) || this.valueField.isActive() || super.keyPressed(new KeyEvent(keyCode, scanCode, modifiers));
     }
 
+    @Override
     protected void init() {
         super.init();
         this.setup();
         this.menu.addSlotListener(this);
     }
 
+    @Override
     public void removed() {
         super.removed();
         this.menu.removeSlotListener(this);
     }
 
+    @Override
     public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
         this.renderForeground(context, mouseX, mouseY, delta);
         this.renderTooltip(context, mouseX, mouseY);
     }
 
+    @Override
     protected void renderLabels(GuiGraphics context, int mouseX, int mouseY) {
         super.renderLabels(context, mouseX, mouseY);
     }
@@ -106,7 +111,9 @@ public class CheckScreen extends AbstractContainerScreen<CheckScreenHandler> imp
         context.blitSprite(RenderPipelines.GUI_TEXTURED, TEXT_FIELD_TEXTURE, this.leftPos + 59, this.topPos + 20, 110, 16);
     }
 
+    @Override
     public void dataChanged(AbstractContainerMenu handler, int property, int value) {}
 
+    @Override
     public void slotChanged(AbstractContainerMenu handler, int slotId, ItemStack stack) {}
 }
