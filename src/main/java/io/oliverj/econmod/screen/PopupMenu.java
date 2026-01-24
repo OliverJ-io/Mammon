@@ -4,9 +4,11 @@ import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.datafixers.util.Pair;
 import io.oliverj.econmod.EconMod;
+import io.oliverj.econmod.Payloads;
 import io.oliverj.econmod.client.EconModClient;
 import io.oliverj.econmod.utils.MathUtils;
 import io.oliverj.econmod.utils.ui.UIHelper;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -32,14 +34,11 @@ public class PopupMenu {
             Pair.of(Component.literal("Cancel"), id -> {
                 EconToast.sendToast(Component.literal("Cancel"));
             }),
-            Pair.of(Component.literal("Reload"), id -> {
-                EconToast.sendToast(Component.literal("Reload"));
+            Pair.of(Component.literal("Send"), id -> {
+                EconToast.sendToast(Component.literal("Send"));
             }),
-            Pair.of(Component.literal("Increase Permissions"), id -> {
-                EconToast.sendToast(Component.literal("Increase Permissions"));
-            }),
-            Pair.of(Component.literal("Decrease Permissions"), id -> {
-                EconToast.sendToast(Component.literal("Decrease Permissions"));
+            Pair.of(Component.literal("Request"), id -> {
+                EconToast.sendToast(Component.literal("Request"));
             })
     );
 
@@ -106,8 +105,8 @@ public class PopupMenu {
 
         pose.scale(0.5f, 0.5f);
 
-        UIHelper.renderOutlineText(gui, font, Component.literal("STANDARD"), -font.width(Component.literal("STANDARD")) / 2, -54, 0xffffff, 0x202020);
-        gui.drawString(font, title, -width + 4, -12, 0xffffff);
+        UIHelper.renderOutlineText(gui, font, Component.literal(EconModClient.getPlayerWallet().getBalance() + " ¤"), -font.width(EconModClient.getPlayerWallet().getBalance() + " ¤") / 2, -54, 0xffffff, 0x202020);
+        gui.drawString(font, title, -width + 4, -12, UIHelper.adjustColor(0xffffff));
 
         pose.popMatrix();
     }

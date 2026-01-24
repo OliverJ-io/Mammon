@@ -11,14 +11,13 @@
   },
   "client": [
     "client.AbstractContainerScreenAccessor",
-    "client.AbstractRecipeBookScreenAccessor",
     "client.CreativeModeInventoryScreenMixin",
     "client.InventoryScreenMixin",
     "client.MinecraftMixin",
     "client.font.FontAccessor",
     "client.gui.GuiGraphicsAccessor",
     "client.gui.GuiGraphicsMixin",
-    "client.gui.InGameHudMixin",
+    "client.gui.GuiMixin",
     "client.input.MouseHandlerMixin",
     "client.render.GameRendererMixin"
   ]

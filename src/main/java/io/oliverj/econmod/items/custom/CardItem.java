@@ -61,7 +61,9 @@ public class CardItem extends Item {
     @Override
     public @NonNull Optional<TooltipComponent> getTooltipImage(ItemStack itemStack) {
         if (itemStack.has(EconComponents.OWNER_COMPONENT_TYPE)) {
-            return Optional.of(new CardTooltipData(UUID.fromString(itemStack.get(EconComponents.OWNER_COMPONENT_TYPE))));
+            UUID ownerUUID = UUID.fromString(itemStack.get(EconComponents.OWNER_COMPONENT_TYPE));
+            Component ownerName = EconMod.MC_SERVER.getPlayerList().getPlayer(ownerUUID).getName();
+            return Optional.of(new CardTooltipData(ownerUUID, ownerName));
         } else {
             return Optional.empty();
         }

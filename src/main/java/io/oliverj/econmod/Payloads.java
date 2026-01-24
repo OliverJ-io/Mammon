@@ -23,6 +23,30 @@ public class Payloads {
         public @NonNull Type<? extends CustomPacketPayload> type() { return ID; }
     }
 
+    public record SendMoneyPayload(UUID sender, UUID receiver, int amount) implements CustomPacketPayload {
+        public static final CustomPacketPayload.Type<SendMoneyPayload> ID = new CustomPacketPayload.Type<>(EconMod.id("send_money_payload"));
+        public static final StreamCodec<RegistryFriendlyByteBuf, SendMoneyPayload> CODEC = StreamCodec.composite(
+                CODEC_UUID, SendMoneyPayload::sender,
+                CODEC_UUID, SendMoneyPayload::receiver,
+                ByteBufCodecs.VAR_INT, SendMoneyPayload::amount,
+                SendMoneyPayload::new
+        );
+        @Override
+        public @NonNull Type<? extends CustomPacketPayload> type() { return ID; }
+    }
+
+    public record RequestMoneyPayload(UUID requester, UUID supplier, int amount) implements CustomPacketPayload {
+        public static final CustomPacketPayload.Type<RequestMoneyPayload> ID = new CustomPacketPayload.Type<>(EconMod.id("request_money_payload"));
+        public static final StreamCodec<RegistryFriendlyByteBuf, RequestMoneyPayload> CODEC = StreamCodec.composite(
+                CODEC_UUID, RequestMoneyPayload::requester,
+                CODEC_UUID, RequestMoneyPayload::supplier,
+                ByteBufCodecs.VAR_INT, RequestMoneyPayload::amount,
+                RequestMoneyPayload::new
+        );
+        @Override
+        public @NonNull Type<? extends CustomPacketPayload> type() { return ID; }
+    }
+
     public record NotifyAdminPayload(UUID playerUUID, boolean isAdmin) implements CustomPacketPayload {
         public static final CustomPacketPayload.Type<NotifyAdminPayload> ID = new CustomPacketPayload.Type<>(EconMod.id("notify_admin_payload"));
         public static final StreamCodec<RegistryFriendlyByteBuf, NotifyAdminPayload> CODEC = StreamCodec.composite(CODEC_UUID, NotifyAdminPayload::playerUUID, ByteBufCodecs.BOOL, NotifyAdminPayload::isAdmin, NotifyAdminPayload::new);
@@ -69,6 +93,8 @@ public class Payloads {
         PayloadTypeRegistry.playS2C().register(NotifyAdminPayload.ID, NotifyAdminPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(GamerulePayloads.Integer.ID, GamerulePayloads.Integer.CODEC);
         PayloadTypeRegistry.playS2C().register(OpenCardPopupPayload.ID, OpenCardPopupPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(SendMoneyPayload.ID, SendMoneyPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(RequestMoneyPayload.ID, RequestMoneyPayload.CODEC);
     }
 
     public static final Identifier handshakeID = EconMod.id("handshake_payload");
