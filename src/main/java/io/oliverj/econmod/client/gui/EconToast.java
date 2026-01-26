@@ -1,4 +1,4 @@
-package io.oliverj.econmod.screen;
+package io.oliverj.econmod.client.gui;
 
 import io.oliverj.econmod.EconMod;
 import io.oliverj.econmod.client.EconModClient;

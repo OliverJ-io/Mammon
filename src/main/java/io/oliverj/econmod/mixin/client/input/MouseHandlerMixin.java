@@ -1,6 +1,6 @@
 package io.oliverj.econmod.mixin.client.input;
 
-import io.oliverj.econmod.screen.PopupMenu;
+import io.oliverj.econmod.client.gui.PopupMenu;
 import net.minecraft.client.MouseHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

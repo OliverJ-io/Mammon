@@ -18,6 +18,18 @@ repositories {
     // for more information about repositories.
     mavenCentral()
     maven { url = "https://maven.parchmentmc.org" }
+    maven { url = "https://maven.terraformersmc.com/" }
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'GeckoLib'
+                url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
+            }
+        }
+        filter {
+            includeGroup('software.bernie.geckolib')
+        }
+    }
 }
 
 fabricApi {
@@ -38,6 +50,12 @@ dependencies {
         parchment("org.parchmentmc.data:parchment-1.21.11:2025.12.20")
     }
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+    // Mod Menu
+    modImplementation "com.terraformersmc:modmenu:17.0.0-beta.2"
+
+    // GeckoLib
+    modImplementation "software.bernie.geckolib:geckolib-fabric-1.21.11:5.4.2"
 
         // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"

@@ -3,7 +3,7 @@ package io.oliverj.econmod.mixin.client;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
 import io.oliverj.econmod.client.EconModClient;
-import io.oliverj.econmod.screen.PopupMenu;
+import io.oliverj.econmod.client.gui.PopupMenu;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;

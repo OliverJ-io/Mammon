@@ -1,4 +1,4 @@
-package io.oliverj.econmod.screen;
+package io.oliverj.econmod.client.gui;
 
 import net.minecraft.client.gui.GuiGraphics;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;

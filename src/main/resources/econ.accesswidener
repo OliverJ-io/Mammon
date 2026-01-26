@@ -8,3 +8,16 @@ accessible field net/minecraft/client/gui/Font$PreparedTextBuilder x F
 accessible field net/minecraft/client/gui/Font$PreparedTextBuilder y F
 
 accessible class net/minecraft/client/gui/GuiGraphics$ScissorStack
+
+accessible method net/minecraft/client/gui/components/WidgetTooltipHolder createTooltipPositioner (Lnet/minecraft/client/gui/navigation/ScreenRectangle;ZZ)Lnet/minecraft/client/gui/screens/inventory/tooltip/ClientTooltipPositioner;
+extendable method net/minecraft/client/gui/components/WidgetTooltipHolder createTooltipPositioner (Lnet/minecraft/client/gui/navigation/ScreenRectangle;ZZ)Lnet/minecraft/client/gui/screens/inventory/tooltip/ClientTooltipPositioner;
+
+accessible field net/minecraft/client/gui/components/AbstractWidget tooltip Lnet/minecraft/client/gui/components/WidgetTooltipHolder;
+mutable field net/minecraft/client/gui/components/AbstractWidget tooltip Lnet/minecraft/client/gui/components/WidgetTooltipHolder;
+
+accessible class net/minecraft/client/renderer/rendertype/RenderSetup$TextureBinding
+
+accessible field net/minecraft/client/renderer/rendertype/RenderType state Lnet/minecraft/client/renderer/rendertype/RenderSetup;
+accessible field net/minecraft/client/renderer/rendertype/RenderSetup textures Ljava/util/Map;
+
+accessible class net/minecraft/client/gui/components/ScrollableLayout$Container

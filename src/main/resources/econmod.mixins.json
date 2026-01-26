@@ -14,10 +14,12 @@
     "client.CreativeModeInventoryScreenMixin",
     "client.InventoryScreenMixin",
     "client.MinecraftMixin",
+    "client.ScreenAccessor",
     "client.font.FontAccessor",
     "client.gui.GuiGraphicsAccessor",
     "client.gui.GuiGraphicsMixin",
     "client.gui.GuiMixin",
+    "client.gui.TooltipMixin",
     "client.input.MouseHandlerMixin",
     "client.render.GameRendererMixin"
   ]

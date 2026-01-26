@@ -47,6 +47,32 @@ public class Payloads {
         public @NonNull Type<? extends CustomPacketPayload> type() { return ID; }
     }
 
+    public record DeleteAccountPayload(UUID account) implements CustomPacketPayload {
+        public static final CustomPacketPayload.Type<DeleteAccountPayload> ID = new CustomPacketPayload.Type<>(EconMod.id("delete_account_payload"));
+        public static final StreamCodec<RegistryFriendlyByteBuf, DeleteAccountPayload> CODEC = StreamCodec.composite(
+                CODEC_UUID, DeleteAccountPayload::account,
+                DeleteAccountPayload::new
+        );
+
+        @Override
+        public Type<? extends CustomPacketPayload> type() {
+            return ID;
+        }
+    }
+
+    public record SelectAccountPayload(UUID account) implements CustomPacketPayload {
+        public static final CustomPacketPayload.Type<SelectAccountPayload> ID = new CustomPacketPayload.Type<>(EconMod.id("select_account_payload"));
+        public static final StreamCodec<RegistryFriendlyByteBuf, SelectAccountPayload> CODEC = StreamCodec.composite(
+                CODEC_UUID, SelectAccountPayload::account,
+                SelectAccountPayload::new
+        );
+
+        @Override
+        public Type<? extends CustomPacketPayload> type() {
+            return ID;
+        }
+    }
+
     public record NotifyAdminPayload(UUID playerUUID, boolean isAdmin) implements CustomPacketPayload {
         public static final CustomPacketPayload.Type<NotifyAdminPayload> ID = new CustomPacketPayload.Type<>(EconMod.id("notify_admin_payload"));
         public static final StreamCodec<RegistryFriendlyByteBuf, NotifyAdminPayload> CODEC = StreamCodec.composite(CODEC_UUID, NotifyAdminPayload::playerUUID, ByteBufCodecs.BOOL, NotifyAdminPayload::isAdmin, NotifyAdminPayload::new);

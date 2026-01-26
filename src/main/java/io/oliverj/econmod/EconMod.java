@@ -1,10 +1,14 @@
 package io.oliverj.econmod;
 
 import io.netty.buffer.Unpooled;
+import io.oliverj.econmod.banking.Account;
+import io.oliverj.econmod.banking.BankInfo;
+import io.oliverj.econmod.banking.TransactionValidator;
 import io.oliverj.econmod.events.WalletUpdateCallback;
+import io.oliverj.econmod.registry.BlockRegistry;
 import io.oliverj.econmod.registry.ItemRegistry;
 import io.oliverj.econmod.items.components.EconComponents;
-import io.oliverj.econmod.registry.ScreenHandlerRegistry;
+import io.oliverj.econmod.registry.MenuRegistry;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -29,11 +33,13 @@ import java.util.UUID;
 public class EconMod implements ModInitializer {
     public static final String MOD_ID = "econmod";
     public static final String MOD_NAME = "Economy";
-    public static final String MOD_VERSION = "1.21-0.0.1";
+    public static final String MOD_VERSION = "1.21.11-0.0.1";
 
     public static MinecraftServer MC_SERVER;
     public static final int VERSION_ID = 0;
     private static HashMap<UUID, Wallet> playerWallets = new HashMap<>();
+    public static HashMap<UUID, BankInfo> banks = new HashMap<>();
+    public static HashMap<UUID, Account> accounts = new HashMap<>();
 
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
@@ -50,8 +56,9 @@ public class EconMod implements ModInitializer {
         EconComponents.initialize();
 
         ItemRegistry.init();
+        BlockRegistry.initialize();
 
-        ScreenHandlerRegistry.registerScreenHandlers();
+        MenuRegistry.registerScreenHandlers();
 
         CommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess, environment) -> Commands.EconCommand(dispatcher)));
 
@@ -69,6 +76,27 @@ public class EconMod implements ModInitializer {
             server.execute(() -> {
                 ServerPlayNetworking.send(player, new Payloads.UpdateWalletPayload(player.getUUID(), playerWallets.get(player.getUUID())));
             });
+
+            BankInfo bank = BankInfo.createBank(player);
+            banks.put(bank.getId(), bank);
+
+            Account account = Account.create(player, bank.getId(), player.getPlainTextName() + " 1");
+            accounts.put(account.getAccountId(), account);
+
+            Account account1 = Account.create(player, bank.getId(), player.getPlainTextName() + " 2");
+            accounts.put(account1.getAccountId(), account1);
+
+            Account account2 = Account.create(player, bank.getId(), player.getPlainTextName() + " 3");
+            accounts.put(account2.getAccountId(), account2);
+
+            Account account3 = Account.create(player, bank.getId(), player.getPlainTextName() + " 4");
+            accounts.put(account3.getAccountId(), account3);
+
+            server.execute(() -> {
+                for (UUID act : accounts.keySet()) {
+                    TransactionValidator.checkAccountTransactions(act);
+                }
+            });
         }));
 
         ServerLoginConnectionEvents.QUERY_START.register(((handler, server, sender, synchronizer) -> {
@@ -84,18 +112,23 @@ public class EconMod implements ModInitializer {
         }));
 
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
-            if (server == null) return;
             Persistance state = Persistance.getServerState(server);
 
             playerWallets = state.playerWallets;
+            banks = state.banks;
+            accounts = state.accounts;
+            EconMod.LOGGER.info("Loaded {} accounts and {} banks", accounts.size(), banks.size());
+
             MC_SERVER = server;
         });
 
         ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
-            if (server == null) return;
             Persistance state = Persistance.getServerState(server);
 
             state.playerWallets = playerWallets;
+            state.banks = banks;
+            state.accounts = accounts;
+            EconMod.LOGGER.info("Saved {} accounts and {} banks", accounts.size(), banks.size());
         });
 
         WalletUpdateCallback.EVENT.register(((player, wallet) -> {

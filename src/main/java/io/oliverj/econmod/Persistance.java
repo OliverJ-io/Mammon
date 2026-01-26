@@ -1,6 +1,8 @@
 package io.oliverj.econmod;
 
 import com.mojang.serialization.Codec;
+import io.oliverj.econmod.banking.Account;
+import io.oliverj.econmod.banking.BankInfo;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
@@ -18,14 +20,35 @@ import java.util.UUID;
 public class Persistance extends SavedData {
 
     public HashMap<UUID, Wallet> playerWallets = new HashMap<>();
+    public HashMap<UUID, BankInfo> banks = new HashMap<>();
+    public HashMap<UUID, Account> accounts = new HashMap<>();
 
     public static Tag writeNbt(Persistance persistance) {
         CompoundTag nbt = new CompoundTag();
-        CompoundTag map = new CompoundTag();
+        CompoundTag walletMap = new CompoundTag();
         for (Map.Entry<UUID, Wallet> entry : persistance.playerWallets.entrySet()) {
-            map.putDouble(entry.getKey().toString(), entry.getValue().getBalance());
+            walletMap.putDouble(entry.getKey().toString(), entry.getValue().getBalance());
         }
-        nbt.put("player_wallets", map);
+        nbt.put("player_wallets", walletMap);
+
+        CompoundTag bankInfoMap = new CompoundTag();
+
+        for (Map.Entry<UUID, BankInfo> entry : persistance.banks.entrySet()) {
+            entry.getValue().writeNbt(bankInfoMap);
+        }
+        nbt.put("banks", bankInfoMap);
+
+        EconMod.LOGGER.info("Saving accounts...");
+
+        CompoundTag accountMap = new CompoundTag();
+
+        for (Map.Entry<UUID, Account> entry : persistance.accounts.entrySet()) {
+            entry.getValue().writeNbt(accountMap);
+        }
+        nbt.put("accounts", accountMap);
+
+        EconMod.LOGGER.info("Saved accounts.");
+
         return nbt;
     }
 
@@ -36,6 +59,19 @@ public class Persistance extends SavedData {
         for (String key : map.keySet()) {
             state.playerWallets.put(UUID.fromString(key), new Wallet(map.getDouble(key).get()));
         }
+
+        CompoundTag bankInfoMap = nbt.getCompoundOrEmpty("banks");
+        for (String key : bankInfoMap.keySet()) {
+            BankInfo info = BankInfo.createFromNbt(bankInfoMap.getCompoundOrEmpty(key));
+            state.banks.put(info.getId(), info);
+        }
+
+        CompoundTag accountMap = nbt.getCompoundOrEmpty("accounts");
+        for (String key : accountMap.keySet()) {
+            Account account = Account.createFromNbt(accountMap.getCompoundOrEmpty(key));
+            state.accounts.put(account.getAccountId(), account);
+        }
+
         return state;
     }
 

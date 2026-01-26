@@ -6,8 +6,7 @@ import io.oliverj.econmod.GameRules;
 import io.oliverj.econmod.Payloads;
 import io.oliverj.econmod.Wallet;
 import io.oliverj.econmod.client.tooltip.CardTooltip;
-import io.oliverj.econmod.registry.ScreenRegistry;
-import io.oliverj.econmod.screen.PopupMenu;
+import io.oliverj.econmod.client.gui.PopupMenu;
 import io.oliverj.econmod.tooltip.CardTooltipData;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientLoginNetworking;
@@ -27,7 +26,7 @@ public class EconModClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
 
-        ScreenRegistry.registerScreens();
+        ModScreens.initialize();
 
         ClientLoginNetworking.registerGlobalReceiver(Payloads.handshakeID, ((client, handler, buf, callback) -> {
             int version = buf.readVarInt();

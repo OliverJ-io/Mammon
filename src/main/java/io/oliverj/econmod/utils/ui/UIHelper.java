@@ -279,6 +279,33 @@ public final class UIHelper {
         return (argbColor & -67108864) == 0 ? ARGB.opaque(argbColor) : argbColor;
     }
 
+    public static int color(int r, int b, int g, int a) {
+        return (a << 24) | (r << 16) | (g << 8) | b;
+    }
+
+    public static record ScissorBounds(int minY, int maxY) {
+        public ScissorBounds() {
+            this(0, 0);
+        }
+    }
+
+    public static ScissorBounds enableScissor(int x, int y, int width, int height) {
+        Minecraft mc = Minecraft.getInstance();
+        float scale = mc.getWindow().getGuiScale();
+
+        int scaledX = (int)(x * scale);
+        int scaledY = (int)((mc.getWindow().getGuiScaledHeight() - y - height) * scale);
+        int scaledWidth = (int)(width * scale);
+        int scaledHeight = (int)(height * scale);
+
+        RenderSystem.enableScissorForRenderTypeDraws(scaledX, scaledY, scaledWidth, scaledHeight);
+        return new ScissorBounds(y, y + height);
+    }
+
+    public static void disableScissor() {
+        RenderSystem.disableScissorForRenderTypeDraws();
+    }
+
     public static class OutlinedGuiTextRenderState extends GuiTextRenderState {
         public OutlinedGuiTextRenderState(Font font, FormattedCharSequence formattedCharSequence, Matrix3x2f matrix3x2f, int x, int y, int color, int outlineColor, @Nullable ScreenRectangle screenRectangle) {
             super(font, formattedCharSequence, matrix3x2f, x, y, color, 0, false, false, screenRectangle);

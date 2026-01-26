@@ -1,14 +1,12 @@
-package io.oliverj.econmod.screen;
+package io.oliverj.econmod.client.gui;
 
 import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.datafixers.util.Pair;
 import io.oliverj.econmod.EconMod;
-import io.oliverj.econmod.Payloads;
 import io.oliverj.econmod.client.EconModClient;
 import io.oliverj.econmod.utils.MathUtils;
 import io.oliverj.econmod.utils.ui.UIHelper;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;

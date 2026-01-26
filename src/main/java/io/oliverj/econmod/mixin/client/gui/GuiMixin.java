@@ -1,6 +1,6 @@
 package io.oliverj.econmod.mixin.client.gui;
 
-import io.oliverj.econmod.screen.EconGui;
+import io.oliverj.econmod.client.gui.EconGui;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
