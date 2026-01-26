@@ -23,7 +23,7 @@ import java.util.UUID;
 import java.util.zip.CRC32;
 import java.util.zip.Checksum;
 
-public class Transaction {
+public class Transaction implements ISignable {
     private final UUID transactionId;
     private final UUID sourceAccount;
     private final UUID destinationAccount;
@@ -138,6 +138,11 @@ public class Transaction {
         return checksum;
     }
 
+    @Override
+    public byte[] toByteArray() {
+        return toByteArray(false);
+    }
+
     public byte[] toByteArray(boolean isChecksum) {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -149,6 +154,25 @@ public class Transaction {
             dos.writeDouble(amount);
             if (isChecksum)
                 dos.write(signature);
+
+            return bos.toByteArray();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public byte[] toFullByteArray() {
+        try {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            DataOutputStream dos = new DataOutputStream(bos);
+            dos.write(UUIDUtil.uuidToByteArray(transactionId));
+            dos.write(UUIDUtil.uuidToByteArray(sourceAccount));
+            dos.write(UUIDUtil.uuidToByteArray(destinationAccount));
+            dos.writeByte(type.getId());
+            dos.writeDouble(amount);
+            dos.write(signature);
+            dos.writeLong(checksum);
 
             return bos.toByteArray();
         } catch (IOException e) {

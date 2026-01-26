@@ -103,7 +103,7 @@ public class PopupMenu {
 
         pose.scale(0.5f, 0.5f);
 
-        UIHelper.renderOutlineText(gui, font, Component.literal(EconModClient.getPlayerWallet().getBalance() + " ¤"), -font.width(EconModClient.getPlayerWallet().getBalance() + " ¤") / 2, -54, 0xffffff, 0x202020);
+        //UIHelper.renderOutlineText(gui, font, Component.literal(EconModClient.getPlayerWallet().getBalance() + " ¤"), -font.width(EconModClient.getPlayerWallet().getBalance() + " ¤") / 2, -54, 0xffffff, 0x202020);
         gui.drawString(font, title, -width + 4, -12, UIHelper.adjustColor(0xffffff));
 
         pose.popMatrix();

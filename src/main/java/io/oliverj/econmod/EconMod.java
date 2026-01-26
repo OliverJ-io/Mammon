@@ -4,7 +4,7 @@ import io.netty.buffer.Unpooled;
 import io.oliverj.econmod.banking.Account;
 import io.oliverj.econmod.banking.BankInfo;
 import io.oliverj.econmod.banking.TransactionValidator;
-import io.oliverj.econmod.events.WalletUpdateCallback;
+import io.oliverj.econmod.banking.User;
 import io.oliverj.econmod.registry.BlockRegistry;
 import io.oliverj.econmod.registry.ItemRegistry;
 import io.oliverj.econmod.items.components.EconComponents;
@@ -22,8 +22,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,9 +35,9 @@ public class EconMod implements ModInitializer {
 
     public static MinecraftServer MC_SERVER;
     public static final int VERSION_ID = 0;
-    private static HashMap<UUID, Wallet> playerWallets = new HashMap<>();
     public static HashMap<UUID, BankInfo> banks = new HashMap<>();
     public static HashMap<UUID, Account> accounts = new HashMap<>();
+    public static HashMap<UUID, User> users = new HashMap<>();
 
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
@@ -71,29 +69,22 @@ public class EconMod implements ModInitializer {
                 ServerPlayNetworking.send(player, new Payloads.GamerulePayloads.Integer(GameRules.DEBT_FLOOR.id(), debtFloor));
             });
 
-            if (!playerWallets.containsKey(player.getUUID())) playerWallets.put(player.getUUID(), new Wallet(0));
+            if (!users.containsKey(player.getUUID())) users.put(player.getUUID(), User.create(player));
 
-            server.execute(() -> {
-                ServerPlayNetworking.send(player, new Payloads.UpdateWalletPayload(player.getUUID(), playerWallets.get(player.getUUID())));
-            });
-
-            BankInfo bank = BankInfo.createBank(player);
+            BankInfo bank = BankInfo.createBank("Testing Bank", player);
             banks.put(bank.getId(), bank);
+            bank.getIssuer().sign();
+            bank.getIssuer().genChecksum();
 
-            Account account = Account.create(player, bank.getId(), player.getPlainTextName() + " 1");
-            accounts.put(account.getAccountId(), account);
-
-            Account account1 = Account.create(player, bank.getId(), player.getPlainTextName() + " 2");
-            accounts.put(account1.getAccountId(), account1);
-
-            Account account2 = Account.create(player, bank.getId(), player.getPlainTextName() + " 3");
-            accounts.put(account2.getAccountId(), account2);
-
-            Account account3 = Account.create(player, bank.getId(), player.getPlainTextName() + " 4");
-            accounts.put(account3.getAccountId(), account3);
+            for (int i = 0; i < 30; i++) {
+                Account acct = Account.create(player, bank.getId(), "Account " + (i + 1));
+                accounts.put(acct.getAccountId(), acct);
+                users.get(player.getUUID()).addAccount(acct.getAccountId());
+            }
 
             server.execute(() -> {
-                for (UUID act : accounts.keySet()) {
+                for (UUID act : users.get(player.getUUID()).getAccounts()) {
+                    LOGGER.info("{} has {} accounts", player.getPlainTextName(), users.get(player.getUUID()).getAccounts().size());
                     TransactionValidator.checkAccountTransactions(act);
                 }
             });
@@ -114,9 +105,9 @@ public class EconMod implements ModInitializer {
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             Persistance state = Persistance.getServerState(server);
 
-            playerWallets = state.playerWallets;
             banks = state.banks;
             accounts = state.accounts;
+            users = state.users;
             EconMod.LOGGER.info("Loaded {} accounts and {} banks", accounts.size(), banks.size());
 
             MC_SERVER = server;
@@ -125,44 +116,12 @@ public class EconMod implements ModInitializer {
         ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
             Persistance state = Persistance.getServerState(server);
 
-            state.playerWallets = playerWallets;
             state.banks = banks;
             state.accounts = accounts;
+            state.users = users;
             EconMod.LOGGER.info("Saved {} accounts and {} banks", accounts.size(), banks.size());
         });
 
-        WalletUpdateCallback.EVENT.register(((player, wallet) -> {
-            ServerPlayNetworking.send((ServerPlayer) player, new Payloads.UpdateWalletPayload(player.getUUID(), wallet));
-            // ServerPlayNetworking.send((ServerPlayerEntity) player, new Payloads.WalletInventoryPayload(Inventories.writeNbt(new NbtCompound(), inventories.get(player).heldStacks, (RegistryWrapper.WrapperLookup) MC_SERVER.getReloadableRegistries().createRegistryLookup())));
-            Persistance state = Persistance.getServerState(MC_SERVER);
-            state.playerWallets = playerWallets;
-            return InteractionResult.SUCCESS;
-        }));
-
-    }
-
-    public static double getPlayerBalance(Player player) {
-        return playerWallets.get(player.getUUID()).getBalance();
-    }
-
-    public static void setPlayerBalance(Player player, double amount) {
-        playerWallets.put(player.getUUID(), new Wallet(amount));
-        WalletUpdateCallback.EVENT.invoker().interact(player, playerWallets.get(player.getUUID()));
-    }
-
-    public static void addPlayerBalance(Player player, double amount, String uuid) {
-        if (uuid != null) {
-            addPlayerBalance(MC_SERVER.getPlayerList().getPlayer(UUID.fromString(uuid)), -amount);
-            addPlayerBalance(player, amount);
-            WalletUpdateCallback.EVENT.invoker().interact(player, playerWallets.get(player.getUUID()));
-            return;
-        }
-        addPlayerBalance(player, amount);
-    }
-
-    public static void addPlayerBalance(Player player, double amount) {
-        setPlayerBalance(player, getPlayerBalance(player) + amount);
-        WalletUpdateCallback.EVENT.invoker().interact(player, playerWallets.get(player.getUUID()));
     }
 
     public static Component getServerErrorMessage(ErrorReason reason) {

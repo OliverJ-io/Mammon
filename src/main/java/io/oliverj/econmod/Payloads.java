@@ -4,24 +4,20 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.ByIdMap;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.NonNull;
 
 import java.util.UUID;
 
 public class Payloads {
-
-    public record UpdateWalletPayload(UUID playerUUID, Wallet wallet) implements CustomPacketPayload {
-        public static final CustomPacketPayload.Type<UpdateWalletPayload> ID = new CustomPacketPayload.Type<>(EconMod.id("record_wallet_payload"));
-        public static final StreamCodec<RegistryFriendlyByteBuf, UpdateWalletPayload> CODEC = StreamCodec.composite(CODEC_UUID, UpdateWalletPayload::playerUUID, CODEC_WALLET, UpdateWalletPayload::wallet, UpdateWalletPayload::new);
-        @Override
-        public @NonNull Type<? extends CustomPacketPayload> type() { return ID; }
-    }
 
     public record SendMoneyPayload(UUID sender, UUID receiver, int amount) implements CustomPacketPayload {
         public static final CustomPacketPayload.Type<SendMoneyPayload> ID = new CustomPacketPayload.Type<>(EconMod.id("send_money_payload"));
@@ -47,6 +43,34 @@ public class Payloads {
         public @NonNull Type<? extends CustomPacketPayload> type() { return ID; }
     }
 
+    public record ATMActionPayload(Action action, UUID srcAccountID, UUID dstAccountID, double amount, UUID bankID, ItemStack heldItem, BlockPos pos) implements CustomPacketPayload {
+        public static final CustomPacketPayload.Type<ATMActionPayload> ID = new Type<>(EconMod.id("atm_action_payload"));
+        public static final StreamCodec<RegistryFriendlyByteBuf, ATMActionPayload> CODEC = StreamCodec.composite(
+                ByteBufCodecs.idMapper(ByIdMap.continuous(Action::ordinal, Action.values(), ByIdMap.OutOfBoundsStrategy.ZERO), Action::ordinal), ATMActionPayload::action,
+                CODEC_UUID, ATMActionPayload::srcAccountID,
+                CODEC_UUID, ATMActionPayload::dstAccountID,
+                ByteBufCodecs.DOUBLE, ATMActionPayload::amount,
+                CODEC_UUID, ATMActionPayload::bankID,
+                ItemStack.OPTIONAL_STREAM_CODEC, ATMActionPayload::heldItem,
+                BlockPos.STREAM_CODEC, ATMActionPayload::pos,
+                ATMActionPayload::new
+        );
+
+        @Override
+        public @NonNull Type<? extends CustomPacketPayload> type() {
+            return ID;
+        }
+
+        enum Action {
+            CREATE_ACCOUNT,
+            DELETE_ACCOUNT,
+            REQUEST_BANK_DETAILS,
+            DEPOSIT_AMOUNT,
+            WITHDRAW_AMOUNT,
+            TRANSFER
+        }
+    }
+
     public record DeleteAccountPayload(UUID account) implements CustomPacketPayload {
         public static final CustomPacketPayload.Type<DeleteAccountPayload> ID = new CustomPacketPayload.Type<>(EconMod.id("delete_account_payload"));
         public static final StreamCodec<RegistryFriendlyByteBuf, DeleteAccountPayload> CODEC = StreamCodec.composite(
@@ -55,7 +79,7 @@ public class Payloads {
         );
 
         @Override
-        public Type<? extends CustomPacketPayload> type() {
+        public @NonNull Type<? extends CustomPacketPayload> type() {
             return ID;
         }
     }
@@ -68,7 +92,7 @@ public class Payloads {
         );
 
         @Override
-        public Type<? extends CustomPacketPayload> type() {
+        public @NonNull Type<? extends CustomPacketPayload> type() {
             return ID;
         }
     }
@@ -115,12 +139,12 @@ public class Payloads {
     }
 
     public static void RegisterPayloads() {
-        PayloadTypeRegistry.playS2C().register(UpdateWalletPayload.ID, UpdateWalletPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(NotifyAdminPayload.ID, NotifyAdminPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(GamerulePayloads.Integer.ID, GamerulePayloads.Integer.CODEC);
         PayloadTypeRegistry.playS2C().register(OpenCardPopupPayload.ID, OpenCardPopupPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(SendMoneyPayload.ID, SendMoneyPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(RequestMoneyPayload.ID, RequestMoneyPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(ATMActionPayload.ID, ATMActionPayload.CODEC);
     }
 
     public static final Identifier handshakeID = EconMod.id("handshake_payload");
@@ -134,18 +158,6 @@ public class Payloads {
         @Override
         public void encode(RegistryFriendlyByteBuf buf, UUID value) {
             buf.writeUUID(value);
-        }
-    };
-
-    public static StreamCodec<RegistryFriendlyByteBuf, Wallet> CODEC_WALLET = new StreamCodec<>() {
-        @Override
-        public Wallet decode(RegistryFriendlyByteBuf buf) {
-            return new Wallet(buf.readDouble());
-        }
-
-        @Override
-        public void encode(RegistryFriendlyByteBuf buf, Wallet value) {
-            buf.writeDouble(value.getBalance());
         }
     };
 

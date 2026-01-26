@@ -59,7 +59,7 @@ public class CheckItem extends Item {
             return InteractionResult.PASS;
         }
 
-        EconMod.addPlayerBalance(player, player.getItemInHand(hand).get(EconComponents.VALUE_COMPONENT_TYPE), player.getItemInHand(hand).get(EconComponents.SENDER_COMPONENT_TYPE));
+        //EconMod.addPlayerBalance(player, player.getItemInHand(hand).get(EconComponents.VALUE_COMPONENT_TYPE), player.getItemInHand(hand).get(EconComponents.SENDER_COMPONENT_TYPE));
         ItemStack stack = player.getItemInHand(hand).copy();
         stack.setCount(stack.getCount() - 1);
         player.setItemInHand(hand, stack);

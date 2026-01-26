@@ -11,8 +11,6 @@
   },
   "client": [
     "client.AbstractContainerScreenAccessor",
-    "client.CreativeModeInventoryScreenMixin",
-    "client.InventoryScreenMixin",
     "client.MinecraftMixin",
     "client.ScreenAccessor",
     "client.font.FontAccessor",

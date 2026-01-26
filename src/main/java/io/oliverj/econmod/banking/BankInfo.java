@@ -112,12 +112,12 @@ public class BankInfo {
         return pubKey;
     }
 
-    public byte[] sign(Transaction transaction) {
+    public byte[] sign(ISignable signable) {
         try {
             Signature signature = Signature.getInstance("SHA256withRSA");
             signature.initSign(privKey);
 
-            byte[] dataBytes = transaction.toByteArray(false);
+            byte[] dataBytes = signable.toByteArray();
             signature.update(dataBytes);
 
             byte[] signedBytes = signature.sign();

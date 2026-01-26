@@ -5,19 +5,32 @@ import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.TagTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.BitField;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.util.*;
+import java.util.zip.CRC32;
+import java.util.zip.Checksum;
 
-public class Account {
+import static io.oliverj.econmod.banking.AccountPermissions.*;
+
+public class Account implements ISignable {
     private final UUID accountId;
     private final UUID owner;
     private String name;
+
+    private Map<UUID, Integer> userPermissions;
 
     private UUID bank;
 
@@ -25,22 +38,31 @@ public class Account {
 
     private List<Transaction> transactions = new ArrayList<>();
 
-    private Account(UUID accountId, UUID owner, String name, UUID bank, double balance, Transaction[] transactions) {
+    private byte[] signature;
+    private long checksum;
+
+    private Account(UUID accountId, UUID owner, String name, UUID bank, double balance, Transaction[] transactions, Map<UUID, Integer> userPermissions, byte[] signature, long checksum) {
         this.accountId = accountId;
         this.owner = owner;
         this.name = name;
+        this.userPermissions = userPermissions;
         this.bank = bank;
         this.balance = balance;
         if (transactions != null)
             this.transactions = List.of(transactions);
+        this.signature = signature;
+        this.checksum = checksum;
     }
 
     public static Account create(Player owner, UUID bank, String name) {
-        return new Account(UUID.randomUUID(), owner.getUUID(), name, bank, 0, null);
+        Account account = new Account(UUID.randomUUID(), owner.getUUID(), name, bank, 0, null, Map.of(owner.getUUID(), OWNER | READ | DEPOSIT | WITHDRAW), null, 0);
+        account.sign();
+        account.genChecksum();
+        return account;
     }
 
     public static Account createIssuer(UUID bank) {
-        return new Account(UUID.randomUUID(), new UUID(0L, 0L),"ISSUING-"+bank.toString(), bank, 0, null);
+        return new Account(UUID.randomUUID(), new UUID(0L, 0L),"ISSUING-"+bank.toString(), bank, 0, null, Map.of(), null, 0);
     }
 
     public UUID getAccountId() {
@@ -67,6 +89,29 @@ public class Account {
         return transactions;
     }
 
+    public int getUserPermissions(UUID user) {
+        return userPermissions.get(user);
+    }
+
+    // Permission checks
+    public boolean isOwner(UUID user) {
+        return new BitField(0b1000).isSet(getUserPermissions(user));
+    }
+
+    public boolean canRead(UUID user) {
+        return new BitField(0b0100).isSet(getUserPermissions(user));
+    }
+
+    public boolean canDeposit(UUID user) {
+        return new BitField(0b0010).isSet(getUserPermissions(user));
+    }
+
+    public boolean canWithdraw(UUID user) {
+        return new BitField(0b0001).isSet(getUserPermissions(user));
+    }
+
+    // End permission checks
+
     public void setBalance(double balance) {
         this.balance = balance;
     }
@@ -87,9 +132,19 @@ public class Account {
         account.putIntArray("id", UUIDUtil.uuidToIntArray(accountId));
         account.putIntArray("owner", UUIDUtil.uuidToIntArray(owner));
         account.putString("name", name);
+
+        CompoundTag userPerms = new CompoundTag();
+        for (Map.Entry<UUID, Integer> entry : userPermissions.entrySet()) {
+            userPerms.putInt(entry.getKey().toString(), entry.getValue());
+        }
+        account.put("user_permissions", userPerms);
+
         account.putIntArray("bank", UUIDUtil.uuidToIntArray(bank));
 
         account.putDouble("balance", balance);
+
+        account.putByteArray("signature", signature);
+        account.putLong("checksum", checksum);
 
         ListTag transactionList = new ListTag();
 
@@ -106,6 +161,13 @@ public class Account {
         UUID accountId = UUIDUtil.uuidFromIntArray(account.getIntArray("id").orElseThrow());
         UUID owner = UUIDUtil.uuidFromIntArray(account.getIntArray("owner").orElseThrow());
         String name = account.getString("name").orElseThrow();
+
+        Map<UUID, Integer> perms = new HashMap<>();
+        CompoundTag userPerms = account.getCompoundOrEmpty("user_permissions");
+        for (Map.Entry<String, Tag> entry : userPerms.entrySet()) {
+            perms.put(UUID.fromString(entry.getKey()), entry.getValue().asInt().orElseThrow());
+        }
+
         UUID bank = UUIDUtil.uuidFromIntArray(account.getIntArray("bank").orElseThrow());
         double balance = account.getDouble("balance").orElseThrow();
 
@@ -115,7 +177,102 @@ public class Account {
         for (Tag tag : transactionList.toArray(Tag[]::new))
             transactions.add(Transaction.createFromNbt((CompoundTag) tag));
 
-        return new Account(accountId, owner, name, bank, balance, transactions.toArray(Transaction[]::new));
+        byte[] signature = account.getByteArray("signature").orElseThrow();
+        long checksum = account.getLong("checksum").orElseThrow();
+
+        return new Account(accountId, owner, name, bank, balance, transactions.toArray(Transaction[]::new), perms, signature, checksum);
+    }
+
+    @Override
+    public byte[] toByteArray() {
+        return toByteArray(false);
+    }
+
+    public byte[] toByteArray(boolean isChecksum) {
+        try {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            DataOutputStream dos = new DataOutputStream(bos);
+            dos.write(UUIDUtil.uuidToByteArray(accountId));
+            dos.write(UUIDUtil.uuidToByteArray(owner));
+            dos.writeUTF(name);
+            for (Map.Entry<UUID, Integer> entry : userPermissions.entrySet()) {
+                dos.write(UUIDUtil.uuidToByteArray(entry.getKey()));
+                dos.writeInt(entry.getValue());
+            }
+            dos.write(UUIDUtil.uuidToByteArray(bank));
+            dos.writeDouble(balance);
+            for (Transaction transaction : transactions) {
+                dos.write(transaction.toFullByteArray());
+            }
+            if (isChecksum)
+                dos.write(signature);
+
+            return bos.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public byte[] toFullByteArray() {
+        try {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            DataOutputStream dos = new DataOutputStream(bos);
+            dos.write(UUIDUtil.uuidToByteArray(accountId));
+            dos.write(UUIDUtil.uuidToByteArray(owner));
+            dos.writeUTF(name);
+            for (Map.Entry<UUID, Integer> entry : userPermissions.entrySet()) {
+                dos.write(UUIDUtil.uuidToByteArray(entry.getKey()));
+                dos.writeInt(entry.getValue());
+            }
+            dos.write(UUIDUtil.uuidToByteArray(bank));
+            dos.writeDouble(balance);
+            for (Transaction transaction : transactions) {
+                dos.write(transaction.toFullByteArray());
+            }
+            dos.write(signature);
+            dos.writeLong(checksum);
+
+            return bos.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public boolean validate() {
+        byte[] data = toByteArray(true);
+        Checksum crc32 = new CRC32();
+        crc32.update(data);
+        long computedSum = crc32.getValue();
+        if (computedSum != checksum) {
+            EconMod.LOGGER.info("Checksum failed! for account: {}", accountId);
+            EconMod.LOGGER.info("Computed: {}, Actual: {}", computedSum, checksum);
+            return false;
+        }
+
+        try {
+            Signature sign = Signature.getInstance("SHA256withRSA");
+
+            sign.initVerify(BankLookup.getBankFromAccount(bank).getPubKey());
+            sign.update(toByteArray());
+
+            return sign.verify(Base64.decodeBase64(signature));
+        } catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void sign() {
+        signature = EconMod.banks.get(bank).sign(this);
+    }
+
+    public void genChecksum() {
+        byte[] data = toByteArray(true);
+
+        Checksum crc32 = new CRC32();
+        crc32.update(data);
+
+        checksum = crc32.getValue();
     }
 
     public static final StreamCodec<RegistryFriendlyByteBuf, Account> CODEC = new StreamCodec<>() {
@@ -124,16 +281,26 @@ public class Account {
             UUID acctId = object.readUUID();
             UUID owner = object.readUUID();
             String name = object.readUtf();
+
+            Map<UUID, Integer> perms = new HashMap<>();
+            int length = object.readVarInt();
+            for (int i = 0; i < length; i++) {
+                perms.put(object.readUUID(), object.readVarInt());
+            }
+
             UUID bank = object.readUUID();
             double balance = object.readDouble();
             List<Transaction> transactionList = new ArrayList<>();
 
-            int length = object.readVarInt();
+            length = object.readVarInt();
             for (int i = 0; i < length; i++) {
                 transactionList.add(Transaction.CODEC.decode(object));
             }
 
-            return new Account(acctId, owner, name, bank, balance, transactionList.toArray(Transaction[]::new));
+            byte[] signature = object.readByteArray();
+            long checksum = object.readLong();
+
+            return new Account(acctId, owner, name, bank, balance, transactionList.toArray(Transaction[]::new), perms, signature, checksum);
         }
 
         @Override
@@ -141,6 +308,13 @@ public class Account {
             object.writeUUID(object2.accountId);
             object.writeUUID(object2.owner);
             object.writeUtf(object2.name);
+
+            object.writeVarInt(object2.userPermissions.size());
+            for (Map.Entry<UUID, Integer> entry : object2.userPermissions.entrySet()) {
+                object.writeUUID(entry.getKey());
+                object.writeVarInt(entry.getValue());
+            }
+
             object.writeUUID(object2.bank);
             object.writeDouble(object2.balance);
 
@@ -148,6 +322,9 @@ public class Account {
             for (Transaction transaction : object2.transactions) {
                 Transaction.CODEC.encode(object, transaction);
             }
+
+            object.writeByteArray(object2.signature);
+            object.writeLong(object2.checksum);
         }
     };
 

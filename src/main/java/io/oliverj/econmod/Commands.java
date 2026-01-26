@@ -2,23 +2,19 @@ package io.oliverj.econmod;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
-import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import io.oliverj.econmod.banking.BankInfo;
 import io.oliverj.econmod.items.custom.CheckItem;
-import io.oliverj.econmod.suggestions.BankSuggestionProvider;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.Contract;
 
 import java.util.Collection;
-import java.util.Objects;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
+
+// TODO: Fix command interactions
 
 public class Commands {
     public static void EconCommand(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -104,25 +100,25 @@ public class Commands {
     }
 
     private static int setEconBalance(ServerPlayer player, double amount) {
-        EconMod.setPlayerBalance(player, amount);
+        //EconMod.setPlayerBalance(player, amount);
         return 1;
     }
 
     private static int setEconBalance(Collection<ServerPlayer> players, double amount) {
         for (ServerPlayer player : players) {
-            EconMod.setPlayerBalance(player, amount);
+            //EconMod.setPlayerBalance(player, amount);
         }
         return 1;
     }
 
     private static int addEconBalance(ServerPlayer player, double amount) {
-        EconMod.addPlayerBalance(player, amount);
+        //EconMod.addPlayerBalance(player, amount);
         return 1;
     }
 
     private static int addEconBalance(Collection<ServerPlayer> players, double amount) {
         for (ServerPlayer player : players) {
-            EconMod.addPlayerBalance(player, amount);
+            //EconMod.addPlayerBalance(player, amount);
         }
         return 1;
     }
@@ -138,7 +134,7 @@ public class Commands {
     }
 
     private static int getEconBalance(ServerPlayer player) {
-        player.sendSystemMessage(Component.literal(Double.toString(EconMod.getPlayerBalance(player))));
+        //player.sendSystemMessage(Component.literal(Double.toString(EconMod.getPlayerBalance(player))));
         return 1;
     }
 

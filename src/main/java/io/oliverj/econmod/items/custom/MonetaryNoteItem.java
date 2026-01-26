@@ -37,10 +37,10 @@ public class MonetaryNoteItem extends Item {
 
         if (user.isCrouching()) {
             ItemStack stack = user.getItemInHand(hand);
-            EconMod.addPlayerBalance(user,value * stack.getCount());
+            //EconMod.addPlayerBalance(user,value * stack.getCount());
             user.getInventory().removeItemNoUpdate(user.getInventory().getSelectedSlot());
         } else {
-            EconMod.addPlayerBalance(user, value);
+            //EconMod.addPlayerBalance(user, value);
             user.getInventory().removeItem(user.getInventory().getSelectedSlot(), 1);
         }
         return InteractionResult.SUCCESS;

@@ -1,7 +1,6 @@
 package io.oliverj.econmod.blocks.custom;
 
-import io.oliverj.econmod.registry.MenuRegistry;
-import io.oliverj.econmod.screen.AboutMenu;
+import io.oliverj.econmod.screen.ATMMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
@@ -29,6 +28,6 @@ public class ATMBlock extends Block {
 
     @Override
     protected @Nullable MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
-        return new SimpleMenuProvider((i, inventory, player) -> new AboutMenu(i, inventory), Component.literal("About"));
+        return new SimpleMenuProvider((i, inventory, player) -> new ATMMenu(i, inventory), Component.literal("About"));
     }
 }

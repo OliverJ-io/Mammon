@@ -4,7 +4,6 @@ import io.netty.buffer.Unpooled;
 import io.oliverj.econmod.EconMod;
 import io.oliverj.econmod.GameRules;
 import io.oliverj.econmod.Payloads;
-import io.oliverj.econmod.Wallet;
 import io.oliverj.econmod.client.tooltip.CardTooltip;
 import io.oliverj.econmod.client.gui.PopupMenu;
 import io.oliverj.econmod.tooltip.CardTooltipData;
@@ -12,14 +11,12 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientLoginNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.TooltipComponentCallback;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.DisconnectionDetails;
 import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.concurrent.CompletableFuture;
 
 public class EconModClient implements ClientModInitializer {
-    private static Wallet playerWallet = null;
 
     public static int ticks;
 
@@ -54,10 +51,6 @@ public class EconModClient implements ClientModInitializer {
             }
         }));
 
-        ClientPlayNetworking.registerGlobalReceiver(Payloads.UpdateWalletPayload.ID, (payload, context) -> {
-            if (payload.playerUUID().equals(Minecraft.getInstance().player.getUUID())) playerWallet = payload.wallet();
-        });
-
         ClientPlayNetworking.registerGlobalReceiver(Payloads.OpenCardPopupPayload.ID, (payload, context) -> {
             PopupMenu.setEntity(payload.targetEntity());
             PopupMenu.setEnabled(true);
@@ -74,8 +67,5 @@ public class EconModClient implements ClientModInitializer {
         ticks++;
     }
 
-    public static Wallet getPlayerWallet() {
-        return playerWallet;
-    }
     public static int debt_floor = 0;
 }
