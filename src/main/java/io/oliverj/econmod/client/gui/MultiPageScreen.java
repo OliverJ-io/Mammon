@@ -41,8 +41,8 @@ public class MultiPageScreen extends Screen {
     @Override
     public void init() {
         pages.forEach(page -> page.init(minecraft.getWindow().getGuiScaledWidth(), minecraft.getWindow().getGuiScaledHeight()));
-        //pages.forEach(Screen::init);
 
+        // This works. Don't know why. use instead of init()V
         pages.forEach(Screen::rebuildWidgets);
     }
 

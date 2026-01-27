@@ -1,5 +1,6 @@
 package io.oliverj.econmod.client.gui.components;
 
+import io.oliverj.econmod.ducks.AWScrollArea;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -30,14 +31,16 @@ public class ScrollArea extends AbstractWidget {
         maxHeight = 0;
         children.forEach(child -> maxHeight = child.getY() - height - 10);
 
-        graphics.enableScissor(getX(), getY(), getX() + width, getY() + height - 5);
-
         Matrix3x2fStack stack = graphics.pose();
         graphics.pose().pushMatrix();
+
+        graphics.enableScissor(getX(), getY(), getX() + width, getY() + height - 5);
         stack.translate(0, scrollIndex);
 
         children.forEach(children -> {
-            children.render(graphics, mouseX, mouseY, partialTick);
+            ((AWScrollArea) children).enableScrollArea(scrollIndex);
+            children.render(graphics, mouseX, mouseY - scrollIndex, partialTick);
+            ((AWScrollArea) children).disableScrollArea();
         });
 
         stack.popMatrix();
@@ -61,7 +64,11 @@ public class ScrollArea extends AbstractWidget {
 
     @Override
     public boolean mouseClicked(@NonNull MouseButtonEvent event, boolean isDoubleClick) {
-        children.forEach(child -> child.mouseClicked(event, isDoubleClick));
+        int cx = (int) event.x();
+        int cy = (int) event.y() - scrollIndex;
+        MouseButtonEvent cEvent = new MouseButtonEvent(cx, cy, event.buttonInfo());
+
+        children.forEach(child -> child.mouseClicked(cEvent, isDoubleClick));
         if (maxHeight < height) return super.mouseClicked(event, isDoubleClick);
         int x = (int) event.x();
         int y = (int) event.y();
@@ -94,5 +101,13 @@ public class ScrollArea extends AbstractWidget {
             scrollIndex += (int) scrollY * 20;
         }
         return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+    }
+
+    public int getMaxHeight() {
+        return maxHeight;
+    }
+
+    public int getScrollIndex() {
+        return scrollIndex;
     }
 }
