@@ -12,7 +12,6 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
-import java.util.Map;
 import java.util.UUID;
 
 public class BankInfo {
@@ -136,7 +135,7 @@ public class BankInfo {
         return issuer;
     }
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, BankInfo> CODEC = new StreamCodec<RegistryFriendlyByteBuf, BankInfo>() {
+    public static final StreamCodec<RegistryFriendlyByteBuf, BankInfo> STREAM_CODEC = new StreamCodec<>() {
         @Override
         public BankInfo decode(RegistryFriendlyByteBuf object) {
             String name = object.readUtf();

@@ -66,23 +66,15 @@ public class EconMod implements ModInitializer {
                 ServerPlayNetworking.send(player, new Payloads.GamerulePayloads.Integer(GameRules.DEBT_FLOOR.id(), debtFloor));
             });
 
-            if (!users.containsKey(player.getUUID())) users.put(player.getUUID(), User.create(player));
+            Banking.createNewUser(player);
 
-            BankInfo bank = BankInfo.createBank("Testing Bank", player);
-            banks.put(bank.getId(), bank);
-            accounts.get(bank.getIssuer()).sign();
-            accounts.get(bank.getIssuer()).genChecksum();
+            UUID bankId = Banking.createBank("Testing Bank", player);
 
-            for (int i = 0; i < 30; i++) {
-                Account acct = Account.create(player, bank.getId(), "Account " + (i + 1));
-                accounts.put(acct.getAccountId(), acct);
-                users.get(player.getUUID()).addAccount(acct.getAccountId());
+            for (int i = 0; i < 3; i++) {
+                UUID aid = Banking.createAccount(player, bankId, "Account " + (i + 1));
 
-                for (int j = 0; j < 20; j++) {
-                    Transaction transaction = Transaction.transfer(acct.getAccountId(), acct.getAccountId(), 20 * j);
-                    transaction.sign();
-                    transaction.genChecksum();
-                    acct.appendTransaction(transaction);
+                for (int j = 0; j < 1; j++) {
+                    Banking.authorizePayment(BankLookup.getBankFromAccount(aid).getIssuer(), aid, 20);
                 }
             }
 

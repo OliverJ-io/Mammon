@@ -30,7 +30,7 @@ public class Account implements ISignable {
     private final UUID owner;
     private String name;
 
-    private Map<UUID, Integer> userPermissions;
+    private final Map<UUID, Integer> userPermissions = new HashMap<>();
 
     private UUID bank;
 
@@ -45,7 +45,7 @@ public class Account implements ISignable {
         this.accountId = accountId;
         this.owner = owner;
         this.name = name;
-        this.userPermissions = userPermissions;
+        this.userPermissions.putAll(userPermissions);
         this.bank = bank;
         this.balance = balance;
         if (transactions != null)
@@ -90,7 +90,33 @@ public class Account implements ISignable {
     }
 
     public int getUserPermissions(UUID user) {
+        if (!userPermissions.containsKey(user)) return 0;
         return userPermissions.get(user);
+    }
+
+    public void setUserPermissions(UUID user, int perms) {
+        if (perms == 0) {
+            userPermissions.remove(user);
+            return;
+        }
+        userPermissions.put(user, perms);
+    }
+
+    public void setUserPermissions(UUID user, boolean canDeposit, boolean canWithdraw, boolean isOwner, boolean canRead) {
+        int perms = 0;
+        if (canDeposit) perms |= DEPOSIT;
+        if (canWithdraw) perms |= WITHDRAW;
+        if (isOwner) perms |= OWNER;
+        if (canRead) perms |= READ;
+        setUserPermissions(user, perms);
+    }
+
+    public void addUserPermission(UUID user, int perm) {
+        setUserPermissions(user, getUserPermissions(user) | perm);
+    }
+
+    public void removeUserPermission(UUID user, int perm) {
+        setUserPermissions(user, getUserPermissions(user) & ~perm);
     }
 
     // Permission checks
@@ -125,6 +151,18 @@ public class Account implements ISignable {
     }
 
     public void appendTransaction(Transaction transaction) { this.transactions.add(transaction); }
+
+    public void withdraw(double amount) {
+        this.balance -= amount;
+        sign();
+        genChecksum();
+    }
+
+    public void deposit(double amount) {
+        this.balance += amount;
+        sign();
+        genChecksum();
+    }
 
     public void writeNbt(CompoundTag map) {
         CompoundTag account = new CompoundTag();
@@ -218,6 +256,7 @@ public class Account implements ISignable {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             DataOutputStream dos = new DataOutputStream(bos);
+
             dos.write(UUIDUtil.uuidToByteArray(accountId));
             dos.write(UUIDUtil.uuidToByteArray(owner));
             dos.writeUTF(name);
