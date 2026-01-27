@@ -29,6 +29,7 @@ public abstract class AbstractWidgetMixin implements AWScrollArea {
     private void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
         if (isScrollArea)
             this.isHovered = graphics.containsPointInScissor(mouseX, mouseY + scrollIndex) && this.areCoordinatesInRectangle(mouseX, mouseY);
+        disableScrollArea();
     }
 
     @Override

@@ -40,7 +40,6 @@ public class ScrollArea extends AbstractWidget {
         children.forEach(children -> {
             ((AWScrollArea) children).enableScrollArea(scrollIndex);
             children.render(graphics, mouseX, mouseY - scrollIndex, partialTick);
-            ((AWScrollArea) children).disableScrollArea();
         });
 
         stack.popMatrix();
