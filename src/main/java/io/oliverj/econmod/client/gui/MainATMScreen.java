@@ -1,16 +1,15 @@
 package io.oliverj.econmod.client.gui;
 
-import io.oliverj.econmod.EconMod;
 import io.oliverj.econmod.banking.Transaction;
 import io.oliverj.econmod.client.gui.components.ScrollArea;
 import io.oliverj.econmod.client.gui.components.StyledButton;
+import io.oliverj.econmod.client.gui.components.TransactionWidget;
 import io.oliverj.econmod.screen.ATMMenu;
 import io.oliverj.econmod.utils.ui.UIHelper;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.StringWidget;
-import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import org.jspecify.annotations.NonNull;
 
 public class MainATMScreen extends Screen {
@@ -103,13 +102,22 @@ public class MainATMScreen extends Screen {
 
         ScrollArea area = new ScrollArea(x, y, width, height);
 
+        int yOffset = 0;
         for (Transaction transaction : menu.getSelectedAccount().getTransactions()) {
-            StringWidget widget = new StringWidget(width - 10, 20, Component.literal(transaction.getType().toString()).append(" ").append(String.valueOf(transaction.getAmount())), minecraft.font);
-            widget.setTooltip(Tooltip.create(Component.literal("From: ").append(menu.acctOwnerMap.get(transaction.getSourceAccount()))
-                    .append("\n").append("To: ").append(menu.acctOwnerMap.get(transaction.getDestinationAccount()))));
+            MutableComponent text = Component.literal(String.valueOf(transaction.getAmount())).append(" ");
+            if (transaction.getSourceAccount() == menu.getSelectedAccount().getAccountId())
+                text.append("->");
+            else text.append("<-");
+
+            TransactionWidget widget = new TransactionWidget(
+                    x + 5, y,
+                    width, 20 + yOffset,
+                    text
+            );
+
+            yOffset += 25;
 
             area.addRenderableWidget(widget);
-            widget.render(graphics, mouseX, mouseY, partialTicks);
         }
 
         area.render(graphics, mouseX, mouseY, partialTicks);
