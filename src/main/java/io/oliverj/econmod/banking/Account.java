@@ -62,7 +62,7 @@ public class Account implements ISignable {
     }
 
     public static Account createIssuer(UUID bank) {
-        return new Account(UUID.randomUUID(), new UUID(0L, 0L),"ISSUING-"+bank.toString(), bank, 0, null, Map.of(), null, 0);
+        return new Account(UUID.randomUUID(), UUID.randomUUID(),"ISSUING-"+bank.toString(), bank, 0, null, Map.of(), null, 0);
     }
 
     public UUID getAccountId() {
@@ -121,19 +121,19 @@ public class Account implements ISignable {
 
     // Permission checks
     public boolean isOwner(UUID user) {
-        return new BitField(0b1000).isSet(getUserPermissions(user));
+        return new BitField(0b0001).isSet(getUserPermissions(user));
     }
 
     public boolean canRead(UUID user) {
-        return new BitField(0b0100).isSet(getUserPermissions(user));
-    }
-
-    public boolean canDeposit(UUID user) {
         return new BitField(0b0010).isSet(getUserPermissions(user));
     }
 
+    public boolean canDeposit(UUID user) {
+        return new BitField(0b0100).isSet(getUserPermissions(user));
+    }
+
     public boolean canWithdraw(UUID user) {
-        return new BitField(0b0001).isSet(getUserPermissions(user));
+        return new BitField(0b1000).isSet(getUserPermissions(user));
     }
 
     // End permission checks
@@ -292,7 +292,7 @@ public class Account implements ISignable {
         try {
             Signature sign = Signature.getInstance("SHA256withRSA");
 
-            sign.initVerify(BankLookup.getBankFromAccount(bank).getPubKey());
+            sign.initVerify(BankLookup.getBankFromAccount(accountId).getPubKey());
             sign.update(toByteArray());
 
             return sign.verify(Base64.decodeBase64(signature));

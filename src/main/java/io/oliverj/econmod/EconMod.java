@@ -46,8 +46,6 @@ public class EconMod implements ModInitializer {
     public void onInitialize() {
         Payloads.RegisterPayloads();
 
-        GameRules.registerGameRules();
-
         EconComponents.initialize();
 
         ItemRegistry.init();
@@ -60,23 +58,11 @@ public class EconMod implements ModInitializer {
         ServerPlayConnectionEvents.JOIN.register(((handler, sender, server) -> {
             ServerPlayer player = handler.getPlayer();
 
-            int debtFloor = server.findRespawnDimension().getGameRules().get(GameRules.DEBT_FLOOR);
-
-            server.execute(() -> {
-                ServerPlayNetworking.send(player, new Payloads.GamerulePayloads.Integer(GameRules.DEBT_FLOOR.id(), debtFloor));
-            });
-
             Banking.createNewUser(player);
 
             UUID bankId = Banking.createBank("Testing Bank", player);
-
-            for (int i = 0; i < 3; i++) {
-                UUID aid = Banking.createAccount(player, bankId, "Account " + (i + 1));
-
-                for (int j = 0; j < 1; j++) {
-                    Banking.authorizePayment(BankLookup.getBankFromAccount(aid).getIssuer(), aid, 20);
-                }
-            }
+            UUID aid = Banking.createAccount(player, bankId, "Primary Account");
+            Banking.authorizePayment(BankLookup.getBankFromAccount(aid).getIssuer(), aid, 240);
 
             server.execute(() -> {
                 for (UUID act : users.get(player.getUUID()).getAccounts()) {

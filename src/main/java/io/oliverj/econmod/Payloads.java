@@ -107,36 +107,8 @@ public class Payloads {
         public @NonNull Type<? extends CustomPacketPayload> type() { return ID; }
     }
 
-    public static class GamerulePayloads {
-        public record Boolean(String gameruleName, boolean value) implements CustomPacketPayload
-        {
-            public static final CustomPacketPayload.Type<Boolean> ID = new CustomPacketPayload.Type<>(EconMod.id("gamerule_boolean_payload"));
-            public static final StreamCodec<RegistryFriendlyByteBuf, Boolean> CODEC = StreamCodec.composite(ByteBufCodecs.STRING_UTF8, Boolean::gameruleName, ByteBufCodecs.BOOL, Boolean::value, Boolean::new);
-            @Override
-            public CustomPacketPayload.@NonNull Type<? extends CustomPacketPayload> type() { return ID; }
-        }
-
-        public record Double(String gameruleName, double value) implements CustomPacketPayload {
-            public static final CustomPacketPayload.Type<Double> ID = new CustomPacketPayload.Type<>(EconMod.id("gamerule_double_payload"));
-            public static final StreamCodec<RegistryFriendlyByteBuf, Double> CODEC = StreamCodec.composite(ByteBufCodecs.STRING_UTF8, Double::gameruleName, ByteBufCodecs.DOUBLE, Double::value, Double::new);
-
-            @Override
-            public CustomPacketPayload.@NonNull Type<? extends CustomPacketPayload> type() {
-                return ID;
-            }
-        }
-
-        public record Integer(String gameruleName, int value) implements CustomPacketPayload {
-            public static final CustomPacketPayload.Type<Integer> ID = new CustomPacketPayload.Type<>(EconMod.id("gamerule_integer_payload"));
-            public static final StreamCodec<RegistryFriendlyByteBuf, Integer> CODEC = StreamCodec.composite(ByteBufCodecs.STRING_UTF8, Integer::gameruleName, ByteBufCodecs.VAR_INT, Integer::value, Integer::new);
-            @Override
-            public CustomPacketPayload.@NonNull Type<? extends CustomPacketPayload> type() { return ID; }
-        }
-    }
-
     public static void RegisterPayloads() {
         PayloadTypeRegistry.playS2C().register(NotifyAdminPayload.ID, NotifyAdminPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(GamerulePayloads.Integer.ID, GamerulePayloads.Integer.CODEC);
         PayloadTypeRegistry.playS2C().register(OpenCardPopupPayload.ID, OpenCardPopupPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(SendMoneyPayload.ID, SendMoneyPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(RequestMoneyPayload.ID, RequestMoneyPayload.CODEC);

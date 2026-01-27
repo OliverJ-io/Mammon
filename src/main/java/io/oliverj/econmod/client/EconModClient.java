@@ -2,7 +2,6 @@ package io.oliverj.econmod.client;
 
 import io.netty.buffer.Unpooled;
 import io.oliverj.econmod.EconMod;
-import io.oliverj.econmod.GameRules;
 import io.oliverj.econmod.Payloads;
 import io.oliverj.econmod.client.tooltip.CardTooltip;
 import io.oliverj.econmod.client.gui.PopupMenu;
@@ -46,14 +45,6 @@ public class EconModClient implements ClientModInitializer {
             else
             {
                 return CompletableFuture.completedFuture(new FriendlyByteBuf(Unpooled.EMPTY_BUFFER));
-            }
-        }));
-
-        ClientPlayNetworking.registerGlobalReceiver(Payloads.GamerulePayloads.Integer.ID, ((payload, context) -> {
-            String gameruleName = payload.gameruleName();
-
-            if (gameruleName.equals(GameRules.DEBT_FLOOR.id())) {
-                debt_floor = payload.value();
             }
         }));
 

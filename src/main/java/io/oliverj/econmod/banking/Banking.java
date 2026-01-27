@@ -45,6 +45,8 @@ public class Banking {
     }
 
     public static UUID _transfer(UUID src, UUID dst, double amount) {
+        if(!EconMod.accounts.get(src).validate() || !EconMod.accounts.get(dst).validate()) return null;
+
         Transaction transaction = Transaction.transfer(src, dst, amount);
         officiateAndSaveTransaction(transaction);
         return transaction.getTransactionId();
@@ -62,11 +64,20 @@ public class Banking {
 
     public static UUID authorizePayment(UUID src, UUID dst, double amount) {
         boolean hasDeposit = EconMod.accounts.get(dst).canDeposit(EconMod.accounts.get(src).getOwner());
-        if (!hasDeposit)
+        if (!hasDeposit) {
+            EconMod.LOGGER.info("{} is not permitted to deposit. Granting privileges", EconMod.accounts.get(src).getOwner());
             EconMod.accounts.get(dst).addUserPermission(EconMod.accounts.get(src).getOwner(), AccountPermissions.DEPOSIT);
+            EconMod.accounts.get(dst).sign();
+            EconMod.accounts.get(dst).genChecksum();
+        }
+        EconMod.LOGGER.info("Transferring {} from {} to {}", amount, src, dst);
         UUID tid = transfer(src, dst, amount, EconMod.accounts.get(src).getOwner());
-        if (!hasDeposit)
+        if (!hasDeposit) {
             EconMod.accounts.get(dst).removeUserPermission(EconMod.accounts.get(src).getOwner(), AccountPermissions.DEPOSIT);
+            EconMod.LOGGER.info("Revoking deposit privileges for {} on {}", EconMod.accounts.get(src).getOwner(), dst);
+            EconMod.accounts.get(dst).sign();
+            EconMod.accounts.get(dst).genChecksum();
+        }
         return tid;
     }
 
