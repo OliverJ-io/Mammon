@@ -44,6 +44,7 @@ public class AccountSelectScreen extends Screen {
         for (Account account : getMenu().getAccounts()) {
             area.addRenderableWidget(new StyledButton(x + 10, y + 10 + 25 * index, 180, 20, Component.literal(account.getName()))
                     .onClick(button -> {
+                        menu.setSelectedAccount(account);
                         screen.setPageIndex(1);
                     }));
             index++;

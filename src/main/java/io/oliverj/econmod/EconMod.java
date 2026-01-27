@@ -1,10 +1,7 @@
 package io.oliverj.econmod;
 
 import io.netty.buffer.Unpooled;
-import io.oliverj.econmod.banking.Account;
-import io.oliverj.econmod.banking.BankInfo;
-import io.oliverj.econmod.banking.TransactionValidator;
-import io.oliverj.econmod.banking.User;
+import io.oliverj.econmod.banking.*;
 import io.oliverj.econmod.registry.BlockRegistry;
 import io.oliverj.econmod.registry.ItemRegistry;
 import io.oliverj.econmod.items.components.EconComponents;
@@ -73,13 +70,20 @@ public class EconMod implements ModInitializer {
 
             BankInfo bank = BankInfo.createBank("Testing Bank", player);
             banks.put(bank.getId(), bank);
-            bank.getIssuer().sign();
-            bank.getIssuer().genChecksum();
+            accounts.get(bank.getIssuer()).sign();
+            accounts.get(bank.getIssuer()).genChecksum();
 
             for (int i = 0; i < 30; i++) {
                 Account acct = Account.create(player, bank.getId(), "Account " + (i + 1));
                 accounts.put(acct.getAccountId(), acct);
                 users.get(player.getUUID()).addAccount(acct.getAccountId());
+
+                for (int j = 0; j < 20; j++) {
+                    Transaction transaction = Transaction.transfer(acct.getAccountId(), acct.getAccountId(), 20 * j);
+                    transaction.sign();
+                    transaction.genChecksum();
+                    acct.appendTransaction(transaction);
+                }
             }
 
             server.execute(() -> {

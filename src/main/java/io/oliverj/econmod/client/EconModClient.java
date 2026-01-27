@@ -13,12 +13,18 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.TooltipComponentCallback;
 import net.minecraft.network.DisconnectionDetails;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class EconModClient implements ClientModInitializer {
 
     public static int ticks;
+
+    public static Map<UUID, Component> acctOwnerMap = new HashMap<>();
 
     @Override
     public void onInitializeClient() {
@@ -54,6 +60,10 @@ public class EconModClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(Payloads.OpenCardPopupPayload.ID, (payload, context) -> {
             PopupMenu.setEntity(payload.targetEntity());
             PopupMenu.setEnabled(true);
+        });
+
+        ClientPlayNetworking.registerGlobalReceiver(Payloads.ATMFriendlyMappingsPayload.ID, (payload, context) -> {
+            acctOwnerMap = payload.acctToOwner();
         });
 
         TooltipComponentCallback.EVENT.register(data -> {

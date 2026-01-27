@@ -90,11 +90,11 @@ public class Transaction implements ISignable {
     }
 
     public static Transaction issue(UUID dst, double amount) {
-        return new Transaction(UUID.randomUUID(), BankLookup.getBankFromAccount(dst).getIssuer().getAccountId(), dst, TransactionType.CREATION, amount);
+        return new Transaction(UUID.randomUUID(), BankLookup.getBankFromAccount(dst).getIssuer(), dst, TransactionType.CREATION, amount);
     }
 
     public static Transaction recall(UUID src, double amount) {
-        return new Transaction(UUID.randomUUID(), src, BankLookup.getBankFromAccount(src).getIssuer().getAccountId(), TransactionType.DESTRUCTION, amount);
+        return new Transaction(UUID.randomUUID(), src, BankLookup.getBankFromAccount(src).getIssuer(), TransactionType.DESTRUCTION, amount);
     }
 
     public void sign() {

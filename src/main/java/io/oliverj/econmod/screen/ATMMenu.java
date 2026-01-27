@@ -2,8 +2,10 @@ package io.oliverj.econmod.screen;
 
 import io.oliverj.econmod.EconMod;
 import io.oliverj.econmod.banking.Account;
+import io.oliverj.econmod.client.EconModClient;
 import io.oliverj.econmod.registry.MenuRegistry;
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -12,16 +14,28 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.NonNull;
 
-import java.util.List;
+import java.util.*;
 
 public class ATMMenu extends AbstractContainerMenu {
     private final List<Account> accounts;
     private final Inventory playerInventory;
 
+    public final Map<UUID, Component> acctOwnerMap;
+    public final Map<UUID, String> bankNameMap = new HashMap<>();
+    public final Map<UUID, String> acctNameMap = new HashMap<>();
+
+    private Account selectedAccount = null;
+
     public ATMMenu(int containerId, Inventory playerInventory) {
         super(MenuRegistry.atmMenu, containerId);
         this.accounts = EconMod.users.get(playerInventory.player.getUUID()).getAccounts().stream().map(id -> EconMod.accounts.get(id)).toList();
         this.playerInventory = playerInventory;
+
+        acctOwnerMap = EconModClient.acctOwnerMap;
+        EconModClient.acctOwnerMap = null;
+
+        EconMod.banks.forEach((uuid, bankInfo) -> bankNameMap.put(uuid, bankInfo.getName()));
+        EconMod.accounts.forEach((uuid, account) -> acctNameMap.put(uuid, account.getName()));
 
         EconMod.LOGGER.info("{} has {} accounts", playerInventory.player.getName(), accounts.size());
 
@@ -42,6 +56,14 @@ public class ATMMenu extends AbstractContainerMenu {
 
     public Inventory getInventory() {
         return playerInventory;
+    }
+
+    public Account getSelectedAccount() {
+        return selectedAccount;
+    }
+
+    public void setSelectedAccount(Account selectedAccount) {
+        this.selectedAccount = selectedAccount;
     }
 
     @Override

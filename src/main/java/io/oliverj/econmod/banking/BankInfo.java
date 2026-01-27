@@ -19,11 +19,11 @@ public class BankInfo {
     private final String name;
     private final UUID owner;
     private final UUID id;
-    private final Account issuer;
+    private final UUID issuer;
     private final PublicKey pubKey;
     private final PrivateKey privKey;
 
-    private BankInfo(String name, UUID owner, UUID id, Account issuer, PublicKey pubKey, PrivateKey privKey) {
+    private BankInfo(String name, UUID owner, UUID id, UUID issuer, PublicKey pubKey, PrivateKey privKey) {
         this.name = name;
         this.owner = owner;
         this.id = id;
@@ -42,20 +42,13 @@ public class BankInfo {
             throw new RuntimeException(e);
         }
         UUID id = UUID.randomUUID();
-        return new BankInfo(name, owner.getUUID(), id, Account.createIssuer(id), pair.getPublic(), pair.getPrivate());
+        Account issuer = Account.createIssuer(id);
+        EconMod.accounts.put(issuer.getAccountId(), issuer);
+        return new BankInfo(name, owner.getUUID(), id, issuer.getAccountId(), pair.getPublic(), pair.getPrivate());
     }
 
     public static BankInfo createBank(ServerPlayer owner) {
-        KeyPair pair;
-        try {
-            KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
-            generator.initialize(2048, new SecureRandom());
-            pair = generator.generateKeyPair();
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-        UUID id = UUID.randomUUID();
-        return new BankInfo(owner.getPlainTextName() + "'s Bank", owner.getUUID(), id, Account.createIssuer(id), pair.getPublic(), pair.getPrivate());
+        return createBank(owner.getPlainTextName() + "'s Bank", owner);
     }
 
     public void writeNbt(CompoundTag map) {
@@ -64,9 +57,7 @@ public class BankInfo {
         info.putString("name", name);
         info.putIntArray("owner", UUIDUtil.uuidToIntArray(owner));
         info.putIntArray("id", UUIDUtil.uuidToIntArray(id));
-        CompoundTag account = new CompoundTag();
-        issuer.writeNbt(account);
-        info.put("issuer", account);
+        info.putIntArray("issuer", UUIDUtil.uuidToIntArray(issuer));
         info.putByteArray("pub_key", pubKey.getEncoded());
         info.putByteArray("priv_key", privKey.getEncoded());
 
@@ -86,10 +77,11 @@ public class BankInfo {
             id = UUIDUtil.uuidFromIntArray(idUUID);
         }
 
-        CompoundTag issuerTag = info.getCompoundOrEmpty("issuer");
-        Account issuer = null;
-        if (!issuerTag.isEmpty())
-            issuer = Account.createFromNbt((CompoundTag) issuerTag.entrySet().stream().map(Map.Entry::getValue).findFirst().get());
+        int[] issuerUUID = info.getIntArray("issuer").orElse(null);
+        UUID issuer = null;
+        if (issuerUUID != null) {
+            issuer = UUIDUtil.uuidFromIntArray(issuerUUID);
+        }
 
         X509EncodedKeySpec pubKeySpec = new X509EncodedKeySpec(info.getByteArray("pub_key").get());
         PKCS8EncodedKeySpec privKeySpec = new PKCS8EncodedKeySpec(info.getByteArray("priv_key").get());
@@ -140,7 +132,7 @@ public class BankInfo {
         return id;
     }
 
-    public Account getIssuer() {
+    public UUID getIssuer() {
         return issuer;
     }
 
@@ -150,7 +142,7 @@ public class BankInfo {
             String name = object.readUtf();
             UUID owner = object.readUUID();
             UUID id = object.readUUID();
-            Account account = Account.CODEC.decode(object);
+            UUID issuer = object.readUUID();
 
             X509EncodedKeySpec pubKeySpec = new X509EncodedKeySpec(object.readByteArray());
 
@@ -163,7 +155,7 @@ public class BankInfo {
                 throw new RuntimeException(e);
             }
 
-            return new BankInfo(name, owner, id, account, pubKey, null);
+            return new BankInfo(name, owner, id, issuer, pubKey, null);
         }
 
         @Override
@@ -171,7 +163,7 @@ public class BankInfo {
             object.writeUtf(object2.name);
             object.writeUUID(object2.id);
             object.writeUUID(object2.owner);
-            Account.CODEC.encode(object, object2.issuer);
+            object.writeUUID(object2.issuer);
             object.writeByteArray(object2.pubKey.getEncoded());
         }
     };

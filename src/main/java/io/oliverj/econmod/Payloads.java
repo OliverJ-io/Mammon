@@ -6,6 +6,8 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -15,6 +17,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.NonNull;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class Payloads {
@@ -71,24 +75,16 @@ public class Payloads {
         }
     }
 
-    public record DeleteAccountPayload(UUID account) implements CustomPacketPayload {
-        public static final CustomPacketPayload.Type<DeleteAccountPayload> ID = new CustomPacketPayload.Type<>(EconMod.id("delete_account_payload"));
-        public static final StreamCodec<RegistryFriendlyByteBuf, DeleteAccountPayload> CODEC = StreamCodec.composite(
-                CODEC_UUID, DeleteAccountPayload::account,
-                DeleteAccountPayload::new
-        );
-
-        @Override
-        public @NonNull Type<? extends CustomPacketPayload> type() {
-            return ID;
-        }
-    }
-
-    public record SelectAccountPayload(UUID account) implements CustomPacketPayload {
-        public static final CustomPacketPayload.Type<SelectAccountPayload> ID = new CustomPacketPayload.Type<>(EconMod.id("select_account_payload"));
-        public static final StreamCodec<RegistryFriendlyByteBuf, SelectAccountPayload> CODEC = StreamCodec.composite(
-                CODEC_UUID, SelectAccountPayload::account,
-                SelectAccountPayload::new
+    public record ATMFriendlyMappingsPayload(Map<UUID, Component> acctToOwner) implements CustomPacketPayload {
+        public static final CustomPacketPayload.Type<ATMFriendlyMappingsPayload> ID = new CustomPacketPayload.Type<>(EconMod.id("atm_friendly_mappings_payload"));
+        public static final StreamCodec<RegistryFriendlyByteBuf, ATMFriendlyMappingsPayload> CODEC = StreamCodec.composite(
+                ByteBufCodecs.map(
+                        HashMap::new,
+                        CODEC_UUID,
+                        ComponentSerialization.STREAM_CODEC
+                ),
+                ATMFriendlyMappingsPayload::acctToOwner,
+                ATMFriendlyMappingsPayload::new
         );
 
         @Override
@@ -145,6 +141,7 @@ public class Payloads {
         PayloadTypeRegistry.playC2S().register(SendMoneyPayload.ID, SendMoneyPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(RequestMoneyPayload.ID, RequestMoneyPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(ATMActionPayload.ID, ATMActionPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(ATMFriendlyMappingsPayload.ID, ATMFriendlyMappingsPayload.CODEC);
     }
 
     public static final Identifier handshakeID = EconMod.id("handshake_payload");
