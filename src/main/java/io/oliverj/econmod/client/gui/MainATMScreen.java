@@ -10,7 +10,10 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.util.FormattedCharSequence;
 import org.jspecify.annotations.NonNull;
+
+import java.util.List;
 
 public class MainATMScreen extends Screen {
     private final ATMMenu menu;
@@ -31,6 +34,41 @@ public class MainATMScreen extends Screen {
                 });
 
         this.addRenderableWidget(backButton);
+
+        int rows = 3;
+        int outerRowWidth = (minecraft.getWindow().getGuiScaledWidth() - (rows + 1)*5) / 6;
+        int innerRowWidth = outerRowWidth * 4;
+        int outerHeight = (minecraft.getWindow().getGuiScaledHeight() - 15) / 2;
+        int innerHeight = (minecraft.getWindow().getGuiScaledHeight() - 10);
+
+        int x = 15 + outerRowWidth + innerRowWidth;
+        int y = 10 + outerHeight;
+        int width = outerRowWidth;
+        int height = outerHeight;
+
+        ScrollArea area = new ScrollArea(x, y + 2 + minecraft.font.lineHeight, width, height - 2 - minecraft.font.lineHeight);
+
+        int yOffset = 4 + minecraft.font.lineHeight;
+        for (Transaction transaction : menu.getSelectedAccount().getTransactions()) {
+            MutableComponent text = Component.literal(transaction.getAmount() + " ¤").append(" ");
+            if (transaction.getSourceAccount() == menu.getSelectedAccount().getAccountId())
+                text.append("->");
+            else text.append("<-");
+
+            //graphics.fill(x + 5, y + yOffset, x - 5 + width, y + yOffset + minecraft.font.lineHeight, 0xFFFF0000);
+
+            TransactionWidget widget = new TransactionWidget(
+                    x, y + yOffset,
+                    width, minecraft.font.lineHeight,
+                    text
+            );
+
+            yOffset += minecraft.font.lineHeight + 2;
+
+            area.addRenderableWidget(widget);
+        }
+
+        this.addRenderableWidget(area);
     }
 
     public ATMMenu getMenu() {
@@ -81,8 +119,18 @@ public class MainATMScreen extends Screen {
         graphics.pose().pushMatrix();
         graphics.pose().translate(x, y);
 
-        graphics.drawCenteredString(minecraft.font, menu.getSelectedAccount().getName(), width / 2, 5, 0xFFFFFFFF);
-        graphics.drawString(minecraft.font, menu.acctOwnerMap.get(menu.getSelectedAccount().getAccountId()), 5, 6 + minecraft.font.lineHeight, 0xFFFFFFFF);
+        List<FormattedCharSequence> lines = minecraft.font.split(Component.literal(menu.getSelectedAccount().getName()), width);
+
+        for (FormattedCharSequence charSequence : lines) {
+            graphics.drawCenteredString(minecraft.font, charSequence, width / 2, y, 0xFFFFFFFF);
+            y += minecraft.font.lineHeight + 1;
+        }
+
+        y += 2;
+
+        graphics.drawString(minecraft.font, menu.acctOwnerMap.get(menu.getSelectedAccount().getAccountId()), 5, y, 0xFFFFFFFF);
+        y += minecraft.font.lineHeight + 2;
+        graphics.drawString(minecraft.font, menu.getSelectedAccount().getBalance() + " ¤", 5, y, 0xFFFFFFFF);
 
         graphics.pose().popMatrix();
         graphics.disableScissor();
@@ -100,26 +148,6 @@ public class MainATMScreen extends Screen {
         int width = outerRowWidth;
         int height = outerHeight;
 
-        ScrollArea area = new ScrollArea(x, y, width, height);
-
-        int yOffset = 0;
-        for (Transaction transaction : menu.getSelectedAccount().getTransactions()) {
-            MutableComponent text = Component.literal(String.valueOf(transaction.getAmount())).append(" ");
-            if (transaction.getSourceAccount() == menu.getSelectedAccount().getAccountId())
-                text.append("->");
-            else text.append("<-");
-
-            TransactionWidget widget = new TransactionWidget(
-                    x + 5, y,
-                    width, 20 + yOffset,
-                    text
-            );
-
-            yOffset += 25;
-
-            area.addRenderableWidget(widget);
-        }
-
-        area.render(graphics, mouseX, mouseY, partialTicks);
+        graphics.textRenderer().acceptScrollingWithDefaultCenter(Component.literal("Transactions"), x, x + width, y + 2, y + 2 + minecraft.font.lineHeight);
     }
 }

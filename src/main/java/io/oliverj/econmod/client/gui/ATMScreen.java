@@ -4,8 +4,9 @@ import io.oliverj.econmod.screen.ATMMenu;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
+import org.jetbrains.annotations.NotNull;
 
-public class ATMScreen extends MultiPageScreen implements MenuAccess<ATMMenu> {
+public class ATMScreen extends MultiPageScreen implements MenuAccess<@NotNull ATMMenu> {
     final ATMMenu menu;
 
     public ATMScreen(ATMMenu menu, Inventory playerInventory, Component title) {

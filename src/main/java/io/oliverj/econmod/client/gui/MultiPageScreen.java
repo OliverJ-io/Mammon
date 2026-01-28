@@ -40,10 +40,12 @@ public class MultiPageScreen extends Screen {
 
     @Override
     public void init() {
-        pages.forEach(page -> page.init(minecraft.getWindow().getGuiScaledWidth(), minecraft.getWindow().getGuiScaledHeight()));
+        //pages.forEach(page -> page.init(minecraft.getWindow().getGuiScaledWidth(), minecraft.getWindow().getGuiScaledHeight()));
+        pages.get(pageIndex).init(minecraft.getWindow().getGuiScaledWidth(), minecraft.getWindow().getGuiScaledHeight());
 
         // This works. Don't know why. use instead of init()V
-        pages.forEach(Screen::rebuildWidgets);
+        pages.get(pageIndex).rebuildWidgets();
+        //pages.forEach(Screen::rebuildWidgets);
     }
 
     @Override
@@ -107,6 +109,8 @@ public class MultiPageScreen extends Screen {
 
     public void setPageIndex(int pageIndex) {
         this.pageIndex = pageIndex;
+        pages.get(pageIndex).init(minecraft.getWindow().getGuiScaledWidth(), minecraft.getWindow().getGuiScaledHeight());
+        pages.get(pageIndex).rebuildWidgets();
         super.rebuildWidgets();
     }
 

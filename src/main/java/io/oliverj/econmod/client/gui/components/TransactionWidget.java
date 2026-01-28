@@ -6,15 +6,16 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 
 public class TransactionWidget extends AbstractWidget {
+
     public TransactionWidget(int x, int y, int width, int height, Component message) {
         super(x, y, width, height, message);
     }
 
     @Override
     protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        guiGraphics.textRenderer().acceptScrollingWithDefaultCenter(
-                getMessage(), getX(), getY(),
-                getX() + width, getY() + height
+        guiGraphics.textRenderer(GuiGraphics.HoveredTextEffects.NONE).acceptScrollingWithDefaultCenter(
+                getMessage(), getX(), getX() + width,
+                getY(), getY() + height
         );
     }
 

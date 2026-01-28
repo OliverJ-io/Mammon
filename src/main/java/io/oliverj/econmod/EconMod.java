@@ -60,9 +60,11 @@ public class EconMod implements ModInitializer {
 
             Banking.createNewUser(player);
 
-            UUID bankId = Banking.createBank("Testing Bank", player);
-            UUID aid = Banking.createAccount(player, bankId, "Primary Account");
-            Banking.authorizePayment(BankLookup.getBankFromAccount(aid).getIssuer(), aid, 240);
+//            UUID bankId = Banking.createBank("Testing Bank", player);
+//            UUID aid = Banking.createAccount(player, bankId, "Primary Account");
+//            for (int i = 0; i < 30; i++) {
+//                Banking.authorizePayment(BankLookup.getBankFromAccount(aid).getIssuer(), aid, (double) 240 / 30);
+//            }
 
             server.execute(() -> {
                 for (UUID act : users.get(player.getUUID()).getAccounts()) {
