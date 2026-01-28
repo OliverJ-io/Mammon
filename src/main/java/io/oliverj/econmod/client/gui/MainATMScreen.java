@@ -60,7 +60,10 @@ public class MainATMScreen extends Screen {
             TransactionWidget widget = new TransactionWidget(
                     x, y + yOffset,
                     width, minecraft.font.lineHeight,
-                    text
+                    text,menu.acctNameMap.get(transaction.getSourceAccount()),
+                    menu.acctNameMap.get(transaction.getDestinationAccount()),
+                    menu.acctOwnerMap.get(transaction.getSourceAccount()),
+                    menu.acctOwnerMap.get(transaction.getDestinationAccount())
             );
 
             yOffset += minecraft.font.lineHeight + 2;
