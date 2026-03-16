@@ -18,7 +18,7 @@ import static net.minecraft.commands.Commands.literal;
 
 public class Commands {
     public static void EconCommand(CommandDispatcher<CommandSourceStack> dispatcher) {
-        LiteralCommandNode<CommandSourceStack> root = dispatcher.register(literal("econ")
+        LiteralCommandNode<CommandSourceStack> root = dispatcher.register(literal("mammon")
                 .then(literal("add")
                         .then(argument("amount", DoubleArgumentType.doubleArg())
                                 .executes(ctx -> addEconBalance(ctx.getSource().getPlayer(), DoubleArgumentType.getDouble(ctx, "amount")))
