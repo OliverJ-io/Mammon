@@ -1,0 +1,1 @@
+![GitHub Release](https://img.shields.io/github/v/release/OliverJ-io/Mammon?include_prereleases)
