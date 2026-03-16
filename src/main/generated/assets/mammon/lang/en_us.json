@@ -1,0 +1,16 @@
+{
+  "container.econmod.check": "Blank Check",
+  "container.econmod.check.sign": "Sign",
+  "item.econmod.card": "%s - Card",
+  "item.mammon.check": "Check",
+  "item.mammon.fifty_bill": "50 ¤",
+  "item.mammon.five_bill": "5 ¤",
+  "item.mammon.five_hundred_bill": "500 ¤",
+  "item.mammon.one_bill": "1 ¤",
+  "item.mammon.one_hundred_bill": "100 ¤",
+  "item.mammon.one_thousand_bill": "1000 ¤",
+  "item.mammon.ten_bill": "10 ¤",
+  "item.mammon.twenty_bill": "20 ¤",
+  "item.mammon.two_hundred_bill": "200 ¤",
+  "wallet.balance.tooltip": "%d ¤"
+}

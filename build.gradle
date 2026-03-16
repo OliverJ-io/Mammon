@@ -39,7 +39,7 @@ fabricApi {
 }
 
 loom {
-    accessWidenerPath = file("src/main/resources/econ.accesswidener")
+    accessWidenerPath = file("src/main/resources/mammon.accesswidener")
 }
 
 dependencies {

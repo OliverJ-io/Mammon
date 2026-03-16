@@ -1,34 +1,34 @@
 {
   "schemaVersion": 1,
-  "id": "econmod",
+  "id": "mammon",
   "version": "0.0.1",
-  "name": "EconMod",
+  "name": "Mammon",
   "description": "",
   "authors": ["Oliver Johnson"],
   "contact": {
-    "repo": "https://github.com/olliejohnson/EconMod"
+    "repo": "https://github.com/olliejohnson/Mammon"
   },
   "license": "All-Rights-Reserved",
-  "icon": "assets/EconMod/icon.png",
+  "icon": "assets/mammon/icon.png",
   "environment": "*",
   "entrypoints": {
     "client": [
-      "io.oliverj.econmod.client.EconModClient"
+      "io.oliverj.mammon.client.MammonClient"
     ],
     "main": [
-      "io.oliverj.econmod.EconMod"
+      "io.oliverj.mammon.Mammon"
     ],
     "fabric-datagen": [
-      "io.oliverj.econmod.client.datagen.EconModDataGeneration"
+      "io.oliverj.mammon.client.datagen.MammonDataGeneration"
     ]
   },
   "mixins": [
-    "econmod.mixins.json"
+    "mammon.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.18.2",
     "fabric": "*",
     "minecraft": "1.21.11"
   },
-  "accessWidener": "econ.accesswidener"
+  "accessWidener": "mammon.accesswidener"
 }

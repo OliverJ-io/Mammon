@@ -1,0 +1,23 @@
+// 1.21.11	-999999999-01-01T00:00:00	Mammon/Model Definitions
+a1b08605f11b6c35c0217591d2cf5e7d7730345d assets/mammon/items/card.json
+a20ae4eada38905a604a8a14586b029532196ed2 assets/mammon/items/check.json
+1f81b788ecf0c9a5a3a7e625e1d5337786e99ea9 assets/mammon/items/fifty_bill.json
+ee7a8fc61ebaa0d34dc00ea6f7f355f83082c0ac assets/mammon/items/five_bill.json
+254b3aa6691e5b1f7f367fc573cfc59c641a81ea assets/mammon/items/five_hundred_bill.json
+af37ef21e062d19758d042f97b77760212f04894 assets/mammon/items/one_bill.json
+9c525ff891601c113c0e5ac8be896931ce4ee96a assets/mammon/items/one_hundred_bill.json
+d8a2db84f2761a53fee027a48e079a12be867752 assets/mammon/items/one_thousand_bill.json
+87970e02981d8e594d49e7bf67b6505e22c64376 assets/mammon/items/ten_bill.json
+a0c496b44eb692a318fe288561a8d0d8531b3d9d assets/mammon/items/twenty_bill.json
+a78e4a5e461b52d215c0627fdc666b61ef2a3288 assets/mammon/items/two_hundred_bill.json
+d2bf2245308713f34637b543305c86b84f029e82 assets/mammon/models/item/card.json
+0d7864113b909d65adbbab5fe0a25cd453476d49 assets/mammon/models/item/check.json
+0c74647d6fd785d765da4c1213a467cce72a87f9 assets/mammon/models/item/fifty_bill.json
+a7a15f705e1de57c37ad55f1ded2334b33d85889 assets/mammon/models/item/five_bill.json
+4198f1c7413e8ebce85a282d6ca79fa197cc2c82 assets/mammon/models/item/five_hundred_bill.json
+5a02c03b33b7a8e66420a374c2dc850aea64a7a5 assets/mammon/models/item/one_bill.json
+095b005ee179f9973bfa46aa50cca192471a5884 assets/mammon/models/item/one_hundred_bill.json
+1af7333229065b9d69fdbdc0be1235dd18b0c008 assets/mammon/models/item/one_thousand_bill.json
+d515ea9722a689ef49ad41eca67e97a1887efec2 assets/mammon/models/item/ten_bill.json
+fe012c0f44774a93c8302c2e1d13af178d4e58aa assets/mammon/models/item/twenty_bill.json
+c06dff0ef973b2568f54009f970ea2049d5e697d assets/mammon/models/item/two_hundred_bill.json
